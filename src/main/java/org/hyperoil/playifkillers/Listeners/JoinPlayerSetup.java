@@ -7,7 +7,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import org.jetbrains.annotations.NotNull;
 
-import static org.hyperoil.playifkillers.Main.SPAWN_POINT;
 import static org.hyperoil.playifkillers.Main.overWorld;
 
 public class JoinPlayerSetup {
