@@ -49,7 +49,6 @@ public class Commands {
                     for (int x = coordinatesSplit[0]; x <= coordinatesSplit[3]; x++) {
                         for (int y = coordinatesSplit[1]; y <= coordinatesSplit[4]; y++) {
                             for (int z = coordinatesSplit[2]; z <= coordinatesSplit[5]; z++) {
-                                if (y <= 0) continue;
                                 InstanceContainer world = Main.overWorld;
                                 Chunk chunk = world.getChunk(x >> 4, z >> 4);
                                 if (chunk != null && chunk.isLoaded()) {

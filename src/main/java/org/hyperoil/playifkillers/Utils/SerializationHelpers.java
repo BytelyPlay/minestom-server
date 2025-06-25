@@ -6,12 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SerializationHelpers {
     private static final Logger log = LoggerFactory.getLogger(SerializationHelpers.class);
 
-    public static HashMap<String, String> seralizeBlocksSaved(ConcurrentHashMap<BlockVec, Block> blocksSaved) {
+    public static HashMap<String, String> serializeBlocksSaved(HashMap<BlockVec, Block> blocksSaved) {
         HashMap<String, String> serializableHashMap = new HashMap<>();
 
         for (BlockVec vec : blocksSaved.keySet()) {
@@ -24,8 +23,8 @@ public class SerializationHelpers {
         }
         return serializableHashMap;
     }
-    public static ConcurrentHashMap<BlockVec, Block> deserializeBlocksSaved(HashMap<String, String> deserialized) {
-        ConcurrentHashMap<BlockVec, Block> blocksSaved = new ConcurrentHashMap<>();
+    public static HashMap<BlockVec, Block> deserializeBlocksSaved(HashMap<String, String> deserialized) {
+        HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
 
         for (String pos : deserialized.keySet()) {
             String[] posSplit = pos.split(" ");
