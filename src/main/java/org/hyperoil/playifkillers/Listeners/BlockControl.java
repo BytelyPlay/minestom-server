@@ -16,7 +16,9 @@ public class BlockControl {
             }
             return;
         }
-        event.setCancelled(!isBlockBreakAllowed);
+        if (!isBlockBreakAllowed) {
+            event.setCancelled(true);
+        }
     }
     public static void onPlayerBlockPlaceEvent(PlayerBlockPlaceEvent event) {
         boolean isBlockPlaceAllowed = isBlockPlaceAllowed(event);
@@ -28,12 +30,16 @@ public class BlockControl {
             }
             return;
         }
-        event.setCancelled(!isBlockPlaceAllowed);
+        if (!isBlockPlaceAllowed) {
+            event.setCancelled(true);
+        }
     }
     private static boolean isBlockPlaceAllowed(PlayerBlockPlaceEvent e) {
-        return true;
+        BlockVec pos = e.getBlockPosition();
+        return !(pos.y() <= 0);
     }
     private static boolean isBlockBreakAllowed(PlayerBlockBreakEvent e) {
-        return true;
+        BlockVec pos = e.getBlockPosition();
+        return !(pos.y() <= 0);
     }
 }

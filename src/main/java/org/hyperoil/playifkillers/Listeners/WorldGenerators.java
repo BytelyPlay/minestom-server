@@ -16,6 +16,12 @@ public class WorldGenerators {
         for (int x = unitAbsoluteStart.blockX(); x < unitAbsoluteEnd.blockX(); x++) {
             for (int y = unitAbsoluteStart.blockY(); y < unitAbsoluteEnd.blockY(); y++) {
                 for (int z = unitAbsoluteStart.blockZ(); z < unitAbsoluteEnd.blockZ(); z++) {
+                    if (y <= 0) {
+                        if (y == 0) {
+                            modifier.setBlock(x, y, z, Block.GRASS_BLOCK);
+                        }
+                        continue;
+                    }
                     BlockVec vec = new BlockVec(x, y, z);
                     Block blockType = Main.blocksSaved.get(vec);
                     if (blockType != null) {

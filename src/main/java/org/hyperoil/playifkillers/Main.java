@@ -10,10 +10,12 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.extras.MojangAuth;
+import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Listeners.*;
+import org.hyperoil.playifkillers.Utils.ChunkSaving;
 import org.hyperoil.playifkillers.Utils.SerializationHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +27,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.hyperoil.playifkillers.Utils.SerializationHelpers.seralizeBlocksSaved;
 
 public class Main {
-    public static final Pos SPAWN_POINT = new Pos(new Vec(25, 51, 25));
+    // TODO: clean the whole codebase up.
+    public static ExecutorService executorService = Executors.newFixedThreadPool(4);
+    public static final Pos SPAWN_POINT = new Pos(new Vec(0, 2, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static InstanceContainer overWorld;
     public static final boolean SAVE_WORLD = true;
@@ -39,7 +45,6 @@ public class Main {
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init();
         MojangAuth.init();
-        blocksSaved.put(new BlockVec(SPAWN_POINT.sub(0, 3, 0)), Block.STONE);
 
         Path overWorldSaveJson = Paths.get("overworldsave.json");
         if (Files.exists(overWorldSaveJson)) {
@@ -63,7 +68,6 @@ public class Main {
                 e.printStackTrace();
             }
         }));
-
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         overWorld = instanceManager.createInstanceContainer();
 
@@ -76,6 +80,10 @@ public class Main {
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
+        globalEventHandler.addListener(PlayerChunkUnloadEvent.class, event -> {
+            Chunk chunk = overWorld.getChunk(event.getChunkX(), event.getChunkZ());
+            ChunkSaving.saveChunk(chunk);
+        });
 
         minecraftServer.start("127.0.0.1", 25565);
     }
