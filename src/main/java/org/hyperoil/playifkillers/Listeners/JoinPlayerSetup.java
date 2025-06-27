@@ -1,12 +1,7 @@
 package org.hyperoil.playifkillers.Listeners;
 
-import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import org.hyperoil.playifkillers.Main;
-import org.jetbrains.annotations.NotNull;
 
 import static org.hyperoil.playifkillers.Main.SPAWN_POINT;
 import static org.hyperoil.playifkillers.Main.overWorld;

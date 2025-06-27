@@ -8,7 +8,6 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Main;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
