@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.block.Block;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class ChunkSaving {
-    private static final String saveFilePrefix = "overworld-";
     private static final String saveFileChunkCoordSeparator = "-";
 
     public static void saveChunk(Chunk chunk) {
@@ -49,7 +49,8 @@ public class ChunkSaving {
     public static String getSaveFileForVec(BlockVec vec) {
         return getSaveFile(vec.chunkX(), vec.chunkZ());
     }
-    private static String getSaveFile(int chunkX, int chunkZ) {
-        return "./save/" + saveFilePrefix + chunkX + saveFileChunkCoordSeparator + chunkZ + ".json";
+    public static String getSaveFile(int chunkX, int chunkZ) {
+        // replace overworld with some instance name.
+        return "./save/" + "overworld" + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".json";
     }
 }

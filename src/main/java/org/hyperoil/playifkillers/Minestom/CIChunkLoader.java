@@ -7,6 +7,9 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.instance.generator.GenerationUnit;
+import net.minestom.server.instance.generator.Generator;
+import net.minestom.server.instance.generator.GeneratorImpl;
 import org.hyperoil.playifkillers.Utils.ChunkSaving;
 import org.hyperoil.playifkillers.Utils.SerializationHelpers;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +25,7 @@ public class CIChunkLoader implements IChunkLoader {
     @Override
     public @Nullable Chunk loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
         // TODO: Add NBT support.
-        Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
-        Path saveFile = Paths.get(ChunkSaving.getSaveFileForChunk(chunk));
+        Path saveFile = Paths.get(ChunkSaving.getSaveFile(chunkX, chunkZ));
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -31,21 +33,20 @@ public class CIChunkLoader implements IChunkLoader {
                     mapper.readValue(new FileReader(saveFile.toString()),
                             new TypeReference<>() {})
             );
-        } catch (FileNotFoundException ignored) {
-
+        } catch (FileNotFoundException e) {
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
         for (BlockVec vec : blocksSaved.keySet()) {
             chunk.setBlock(vec.blockX(), vec.blockY(), vec.blockZ(), blocksSaved.get(vec));
         }
-        System.out.println("loadChunk");
         return chunk;
     }
 
     @Override
     public void saveChunk(@NotNull Chunk chunk) {
         ChunkSaving.saveChunk(chunk);
-        System.out.println("Saved.");
     }
 }

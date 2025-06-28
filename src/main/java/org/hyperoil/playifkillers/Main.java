@@ -4,27 +4,30 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.event.EventHandler;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
+import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Utils.ChunkSaving;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class Main {
-    // TODO: AFTER CLEANING you should try and make a binary format for saving chunks. and also try to use your chunk and ichunkloader instance to save the chunks completely without using events. amd also be able to load all chunks from the saves... not just generate
-    public static ExecutorService executorService = Executors.newFixedThreadPool(4);
+    // TODO: AFTER CLEANING you should try and make a binary format for saving chunks.
+    public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 2, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static InstanceContainer overWorld;
@@ -39,8 +42,6 @@ public class Main {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         overWorld = instanceManager.createInstanceContainer();
 
-        // overWorld.setGenerator(WorldGenerators::overWorldGenerator);
-
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, JoinPlayerSetup::onAsyncPlayerConfigurationEvent);
@@ -49,22 +50,24 @@ public class Main {
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
-        globalEventHandler.addListener(PlayerChunkUnloadEvent.class, event -> {
-            Chunk chunk = overWorld.getChunk(event.getChunkX(), event.getChunkZ());
-            if (chunk == null) return;
-            ChunkSaving.saveChunk(chunk);
-            executorService.submit(() -> {
-                for (BlockVec vec : blocksSaved.keySet()) {
-                    int chunkX = vec.chunkX();
-                    int chunkZ = vec.chunkZ();
-                    if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && !chunk.isLoaded()) {
-                        blocksSaved.remove(vec);
-                    }
-                }
-            });
+        executorService.scheduleAtFixedRate(() -> {
+            if (!SAVE_WORLD) return;
+            for (Instance inst : instanceManager.getInstances()) {
+                inst.saveChunksToStorage();
+            }
+        }, 120, 120, TimeUnit.SECONDS);
+
+        instanceManager.getInstances().forEach(instance -> {
+            if (instance instanceof @NotNull InstanceContainer container) {
+                container.setChunkLoader(new CIChunkLoader());
+            }
         });
 
-        overWorld.setChunkLoader(new CIChunkLoader());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (Instance inst : instanceManager.getInstances()) {
+                inst.saveChunksToStorage();
+            }
+        }));
 
         minecraftServer.start("127.0.0.1", 25565);
     }
