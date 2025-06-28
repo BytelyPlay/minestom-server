@@ -44,7 +44,8 @@ public class Main {
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, JoinPlayerSetup::onAsyncPlayerConfigurationEvent);
-        globalEventHandler.addListener(PlayerCommandEvent.class, Commands::onPlayerCommandEvent);
+        CommandParser commandParser = new CommandParser(executorService, overWorld);
+        globalEventHandler.addListener(PlayerCommandEvent.class, commandParser::onPlayerCommandEvent);
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
