@@ -21,19 +21,8 @@ public class CIChunkLoader implements IChunkLoader {
     @Override
     public @Nullable Chunk loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
         // TODO: Add NBT support.
-        Path saveFile = Paths.get(ChunkSaving.getSaveFile(chunkX, chunkZ));
-        HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            blocksSaved = SerializationHelpers.deserializeBlocksSaved(
-                    mapper.readValue(new FileReader(saveFile.toString()),
-                            new TypeReference<>() {})
-            );
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HashMap<BlockVec, Block> blocksSaved = ChunkSaving.loadChunk(chunkX, chunkZ);
+        if (blocksSaved == null) return null;
         Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
         for (BlockVec vec : blocksSaved.keySet()) {
             chunk.setBlock(vec.blockX(), vec.blockY(), vec.blockZ(), blocksSaved.get(vec));

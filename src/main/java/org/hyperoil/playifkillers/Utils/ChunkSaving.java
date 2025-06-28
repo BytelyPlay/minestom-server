@@ -5,20 +5,25 @@ import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ChunkSaving {
+    // TODO: Add NBT support.
     private static final String saveFileChunkCoordSeparator = "-";
     private static final Path savesFolder = Paths.get("./save");
     private static final int REGION_VERSION = 1;
-    private static final byte[] INTEGER_COMING_BYTES = getIntegerComingBytes();
     private static final byte[] IDENTIFIER_BYTES = getIdentifierBytes();
+    private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
 
     public static void saveChunk(Chunk chunk) {
         int chunkX = chunk.getChunkX();
@@ -30,7 +35,7 @@ public class ChunkSaving {
         try {
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (!Files.exists(regionFile)) Files.createFile(regionFile);
-            try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(saveFile))) {
+            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
                 // Header to make sure it's actually a region file and some data:
                 // START HEADER
 
@@ -39,7 +44,6 @@ public class ChunkSaving {
                 // END IDENTIFIER
 
                 // START VERSION
-                outputStream.write(INTEGER_COMING_BYTES);
                 outputStream.write(REGION_VERSION);
                 // END VERSION
 
@@ -51,18 +55,17 @@ public class ChunkSaving {
                     for (int y = 0; y < 16; y++) {
                         for (int z = 0; z < 16; z++) {
                             Block b = chunk.getBlock(x, y, z);
-                            if (b.isAir()) continue;
-                            if (b.hasNbt()) System.out.println("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+                            if (b.isAir()) {
+                                outputStream.write(0xF5);
+                                continue;
+                            }
+                            if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
 
-                            outputStream.write(INTEGER_COMING_BYTES);
-                            outputStream.write(x);
-                            outputStream.write(INTEGER_COMING_BYTES);
-                            outputStream.write(y);
-                            outputStream.write(INTEGER_COMING_BYTES);
-                            outputStream.write(z);
+                            outputStream.writeInt(x);
+                            outputStream.writeInt(y);
+                            outputStream.writeInt(z);
 
-                            outputStream.write(INTEGER_COMING_BYTES);
-                            outputStream.write(b.id());
+                            outputStream.writeShort(b.id());
                         }
                     }
                 }
@@ -85,40 +88,34 @@ public class ChunkSaving {
     }
     private static String getSaveFile(int chunkX, int chunkZ) {
         // replace overworld with some instance name.
-        return "./save/" + "overworld" + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".json";
+        return "./save/" + "overworld" + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
     }
     public static @Nullable HashMap<BlockVec, Block> loadChunk(int chunkX, int chunkZ) {
+        HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
         Path savePath = Paths.get(getSaveFile(chunkX, chunkZ));
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(savePath.toString()))) {
-            byte[] nextBytes;
-            boolean identified = false;
-            boolean integerComing = false;
-            while (inputStream.available() > 0) {
-                // 8 bytes is the amount of bytes per identifier and works well with integers.
-                nextBytes = inputStream.readNBytes(8);
-                if (!identified) {
-                    if (nextBytes != IDENTIFIER_BYTES) {
-                        System.out.println("Not a region file.");
-                        return null;
-                    } else {
-                        identified = true;
+        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
+            if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
+                if (inputStream.read() == REGION_VERSION) {
+                    for (int x = 0; x < 16; x++) {
+                        for (int y = 0; y < 16; y++) {
+                            for (int z = 0; z < 16; z++) {
+                                inputStream.mark(1);
+                                if (inputStream.read() == 0xF5) {
+                                    continue;
+                                }
+                                inputStream.reset();
+                                blocksSaved.put(new BlockVec(inputStream.readInt(), inputStream.readInt(), inputStream.readInt()), Block.fromBlockId(inputStream.readUnsignedShort()));
+                            }
+                        }
                     }
                 }
-                if (integerComing) {
-                    integerComing = false;
-                    inputStream.read();
-                }
             }
+        } catch (FileNotFoundException e) {
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    private static byte[] getIntegerComingBytes() {
-        byte[] bytes = new byte[8];
-        for (int i = 0; i < 8; i++) {
-            bytes[i] = (byte) (i * 2 + 9 / 2);
-        }
-        return bytes;
+        return blocksSaved;
     }
     private static byte[] getIdentifierBytes() {
         byte[] bytes = new byte[8];
@@ -126,9 +123,5 @@ public class ChunkSaving {
             bytes[i] = (byte) (i * 3 + 2);
         }
         return bytes;
-    }
-    // please supply 8 bytes only
-    private static boolean isIntegerComing(byte[] bytes) {
-        return bytes.length == 8 && INTEGER_COMING_BYTES == bytes;
     }
 }

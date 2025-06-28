@@ -26,14 +26,11 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 
 public class Main {
-    // TODO: AFTER CLEANING you should try and make a binary format for saving chunks.
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 2, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static InstanceContainer overWorld;
     public static final boolean SAVE_WORLD = true;
-    // The BlockVec is the position and Block is the type
-    public static ConcurrentHashMap<BlockVec, Block> blocksSaved = new ConcurrentHashMap<>();
     private Main() {}
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init();
