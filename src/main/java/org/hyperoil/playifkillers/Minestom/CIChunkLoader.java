@@ -1,0 +1,51 @@
+package org.hyperoil.playifkillers.Minestom;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minestom.server.coordinate.BlockVec;
+import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.IChunkLoader;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.block.Block;
+import org.hyperoil.playifkillers.Utils.ChunkSaving;
+import org.hyperoil.playifkillers.Utils.SerializationHelpers;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+
+public class CIChunkLoader implements IChunkLoader {
+    @Override
+    public @Nullable Chunk loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
+        // TODO: Add NBT support.
+        Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
+        Path saveFile = Paths.get(ChunkSaving.getSaveFileForChunk(chunk));
+        HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            blocksSaved = SerializationHelpers.deserializeBlocksSaved(
+                    mapper.readValue(new FileReader(saveFile.toString()),
+                            new TypeReference<>() {})
+            );
+        } catch (FileNotFoundException ignored) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for (BlockVec vec : blocksSaved.keySet()) {
+            chunk.setBlock(vec.blockX(), vec.blockY(), vec.blockZ(), blocksSaved.get(vec));
+        }
+        System.out.println("loadChunk");
+        return chunk;
+    }
+
+    @Override
+    public void saveChunk(@NotNull Chunk chunk) {
+        ChunkSaving.saveChunk(chunk);
+        System.out.println("Saved.");
+    }
+}

@@ -18,7 +18,7 @@ public class ChunkSaving {
 
     public static void saveChunk(Chunk chunk) {
         HashMap<BlockVec, Block> saveHashMap = new HashMap<>();
-        String saveFile = getSaveFileForVecChunk(chunk);
+        String saveFile = getSaveFileForChunk(chunk);
         for (int x = 0; x < 16; x++) {
             for (int y = -64; y < 16; y++) {
                 for (int z = 0; z < 16; z++) {
@@ -42,7 +42,7 @@ public class ChunkSaving {
         }
     }
 
-    public static String getSaveFileForVecChunk(Chunk chunk) {
+    public static String getSaveFileForChunk(Chunk chunk) {
         return getSaveFile(chunk.getChunkX(), chunk.getChunkZ());
     }
 

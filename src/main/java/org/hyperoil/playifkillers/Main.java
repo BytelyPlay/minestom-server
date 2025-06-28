@@ -13,6 +13,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Listeners.*;
+import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Utils.ChunkSaving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main {
-    // TODO: clean the whole codebase up.
     // TODO: AFTER CLEANING you should try and make a binary format for saving chunks. and also try to use your chunk and ichunkloader instance to save the chunks completely without using events. amd also be able to load all chunks from the saves... not just generate
     public static ExecutorService executorService = Executors.newFixedThreadPool(4);
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 2, 0));
@@ -39,7 +39,7 @@ public class Main {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         overWorld = instanceManager.createInstanceContainer();
 
-        overWorld.setGenerator(WorldGenerators::overWorldGenerator);
+        // overWorld.setGenerator(WorldGenerators::overWorldGenerator);
 
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
@@ -63,6 +63,8 @@ public class Main {
                 }
             });
         });
+
+        overWorld.setChunkLoader(new CIChunkLoader());
 
         minecraftServer.start("127.0.0.1", 25565);
     }
