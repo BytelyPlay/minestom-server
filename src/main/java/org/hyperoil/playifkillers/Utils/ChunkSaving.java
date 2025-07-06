@@ -34,7 +34,7 @@ public class ChunkSaving {
         int relaChunkX = Math.floorMod(chunkX, 32);
         int relaChunkZ = Math.floorMod(chunkZ, 32);
         Path regionFile = Paths.get(getSaveFile(regionX, regionZ));
-        boolean isNew = !Files.exists(regionFile);
+        final boolean isNew = !Files.exists(regionFile);
         try {
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (isNew) Files.createFile(regionFile);
@@ -54,7 +54,7 @@ public class ChunkSaving {
 
                         // END HEADER
                     } else {
-                        raf.seek(12);
+                        raf.seek(9);
                     }
 
                     // Writing the actual data
@@ -62,6 +62,7 @@ public class ChunkSaving {
                     for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
                         for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
                             if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
+                                log.info("HEHE2");
                                 raf.write(0x91);
                                 for (int x = 0; x < 16; x++) {
                                     for (int y = 0; y < 16; y++) {
@@ -70,19 +71,24 @@ public class ChunkSaving {
                                             if (b.isAir()) {
                                                 raf.write(0xF5);
                                                 continue;
+                                            } else {
+                                                raf.write(0x09);
                                             }
                                             if (b.hasNbt())
                                                 ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
 
-                                            raf.writeInt(x);
-                                            raf.writeInt(y);
-                                            raf.writeInt(z);
+                                            raf.write(x);
+                                            raf.write(y);
+                                            raf.write(z);
 
                                             raf.writeShort(b.id());
+
+                                            log.info("save: {} {} {} {}", x, y, z, b.id());
                                         }
                                     }
                                 }
                             } else {
+                                log.info("HEHE1");
                                 if (isNew) raf.write(0xF1);
                             }
                         }
@@ -116,24 +122,30 @@ public class ChunkSaving {
                     if (raf.read() == REGION_VERSION) {
                         for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
                             for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
-                                int marker = raf.read();
                                 if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
+                                    int marker = raf.read();
                                     if (marker == 0xF1) return null;
                                     if (marker != 0x91) {
-                                        log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null...");
+                                        log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null... marker: {}", marker);
                                         return null;
                                     }
                                     for (int x = 0; x < 16; x++) {
                                         for (int y = 0; y < 16; y++) {
                                             for (int z = 0; z < 16; z++) {
-                                                if (raf.read() == 0xF5) continue;
-                                                raf.seek(raf.getFilePointer() - 1);
+                                                int nextByte = raf.read();
+                                                if (nextByte == 0xF5) continue;
+                                                if (nextByte != 0x09) {
+                                                    log.warn("nextByte != 0xF5 && nextByte != 0x09 something might be corrupted continuing what the byte is: {}", nextByte);
+                                                    continue;
+                                                }
 
-                                                int bX = raf.readInt();
-                                                int bY = raf.readInt();
-                                                int bZ = raf.readInt();
+                                                int bX = raf.read();
+                                                int bY = raf.read();
+                                                int bZ = raf.read();
 
-                                                int blockID = raf.readUnsignedShort();
+                                                int blockID = raf.readShort();
+
+                                                log.info("load: {} {} {} {}", bX, bY, bZ, blockID);
 
                                                 blocksSaved.put(new BlockVec(bX, bY, bZ), Block.fromBlockId(blockID));
                                             }
