@@ -84,7 +84,7 @@ public class ChunkSaving {
                 // END WRITING DATA
             }
         } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException caught although checked for file stacktrace:");
+            log.error("FileNotFoundException caught although checked for file stacktrace: ");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,15 +100,24 @@ public class ChunkSaving {
         try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
             if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
                 if (inputStream.read() == REGION_VERSION) {
-                    for (int x = 0; x < 16; x++) {
-                        for (int y = 0; y < 16; y++) {
-                            for (int z = 0; z < 16; z++) {
-                                inputStream.mark(1);
-                                if (inputStream.read() == 0xF5) {
-                                    continue;
+                    for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
+                        for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
+                            if (relChunkX == Math.floorMod(chunkX, 32) && relChunkZ == Math.floorMod(chunkZ, 32)) {
+                                for (int x = 0; x < 16; x++) {
+                                    for (int y = 0; y < 16; y++) {
+                                        for (int z = 0; z < 16; z++) {
+                                            if (inputStream.read() == 0xF5) continue;
+
+                                            int bX = inputStream.readInt();
+                                            int bY = inputStream.readInt();
+                                            int bZ = inputStream.readInt();
+
+                                            int blockID = inputStream.readUnsignedShort();
+
+                                            blocksSaved.put(new BlockVec(bX, bY, bZ), Block.fromBlockId(blockID));
+                                        }
+                                    }
                                 }
-                                inputStream.reset();
-                                blocksSaved.put(new BlockVec(inputStream.readInt(), inputStream.readInt(), inputStream.readInt()), Block.fromBlockId(inputStream.readUnsignedShort()));
                             }
                         }
                     }
