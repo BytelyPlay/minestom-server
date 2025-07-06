@@ -122,32 +122,24 @@ public class ChunkSaving {
                     if (raf.read() == REGION_VERSION) {
                         for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
                             for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
+                                int marker = raf.read();
                                 if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
-                                    int marker = raf.read();
                                     if (marker == 0xF1) return null;
-                                    if (marker != 0x09) {
-                                        log.warn("marker != 0x09 and isn't 0xF1 could be corrupted... returning null... marker: {}", marker);
-                                        return null;
+                                    if (marker != 0x91) {
+                                        log.warn("marker != 0x91 but also not 0xF1 so continuing could be corruption: {}", marker);
                                     }
+                                    log.info("HEHE12");
                                     for (int x = 0; x < 16; x++) {
                                         for (int y = 0; y < 16; y++) {
                                             for (int z = 0; z < 16; z++) {
-                                                int nextByte = raf.read();
-                                                if (nextByte == 0xF5) continue;
-                                                if (nextByte != 0x09) {
-                                                    log.warn("nextByte != 0xF5 && nextByte != 0x09 something might be corrupted continuing what the byte is: {}", nextByte);
-                                                    continue;
+                                                raf.seek(raf.getFilePointer() + 2);
+                                                int blockMarker = raf.read();
+                                                if (blockMarker == 0xF5) continue;
+                                                if (blockMarker != 0x09) {
+                                                    log.warn("blockMarker != 0x09 continuing but data is probably corrupted... actual blockMarker: {}", blockMarker);
                                                 }
 
-                                                int bX = raf.read();
-                                                int bY = raf.read();
-                                                int bZ = raf.read();
-
-                                                int blockID = raf.readShort();
-
-                                                log.info("load: {} {} {} {}", bX, bY, bZ, blockID);
-
-                                                blocksSaved.put(new BlockVec(bX, bY, bZ), Block.fromBlockId(blockID));
+                                                blocksSaved.put(new BlockVec(raf.read(), raf.read(), raf.read()), Block.fromBlockId(raf.readShort()));
                                             }
                                         }
                                     }
