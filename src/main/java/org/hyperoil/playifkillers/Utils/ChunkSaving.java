@@ -1,21 +1,21 @@
 package org.hyperoil.playifkillers.Utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.block.Block;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChunkSaving {
     // TODO: Add NBT support.
@@ -24,6 +24,7 @@ public class ChunkSaving {
     private static final int REGION_VERSION = 2;
     private static final byte[] IDENTIFIER_BYTES = getIdentifierBytes();
     private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
+    private static ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     public static void saveChunk(Chunk chunk) {
         int chunkX = chunk.getChunkX();
@@ -37,55 +38,57 @@ public class ChunkSaving {
         try {
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (isNew) Files.createFile(regionFile);
-            try (RandomAccessFile raf = new RandomAccessFile(regionFile.toString(), "rw")) {
-                if (isNew) {
-                    // Header to make sure it's actually a region file and some data:
-                    // START HEADER
+            synchronized (getLock(regionFile.toString())) {
+                try (RandomAccessFile raf = new RandomAccessFile(regionFile.toString(), "rw")) {
+                    if (isNew) {
+                        // Header to make sure it's actually a region file and some data:
+                        // START HEADER
 
-                    // START IDENTIFIER
-                    raf.write(IDENTIFIER_BYTES);
-                    // END IDENTIFIER
+                        // START IDENTIFIER
+                        raf.write(IDENTIFIER_BYTES);
+                        // END IDENTIFIER
 
-                    // START VERSION
-                    raf.write(REGION_VERSION);
-                    // END VERSION
+                        // START VERSION
+                        raf.write(REGION_VERSION);
+                        // END VERSION
 
-                    // END HEADER
-                } else {
-                    raf.seek(12);
-                }
+                        // END HEADER
+                    } else {
+                        raf.seek(12);
+                    }
 
-                // Writing the actual data
-                // START WRITING DATA
-                for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
-                    for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
-                        if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
-                            raf.write(0x91);
-                            for (int x = 0; x < 16; x++) {
-                                for (int y = 0; y < 16; y++) {
-                                    for (int z = 0; z < 16; z++) {
-                                        Block b = chunk.getBlock(x, y, z);
-                                        if (b.isAir()) {
-                                            raf.write(0xF5);
-                                            continue;
+                    // Writing the actual data
+                    // START WRITING DATA
+                    for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
+                        for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
+                            if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
+                                raf.write(0x91);
+                                for (int x = 0; x < 16; x++) {
+                                    for (int y = 0; y < 16; y++) {
+                                        for (int z = 0; z < 16; z++) {
+                                            Block b = chunk.getBlock(x, y, z);
+                                            if (b.isAir()) {
+                                                raf.write(0xF5);
+                                                continue;
+                                            }
+                                            if (b.hasNbt())
+                                                ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+
+                                            raf.writeInt(x);
+                                            raf.writeInt(y);
+                                            raf.writeInt(z);
+
+                                            raf.writeShort(b.id());
                                         }
-                                        if (b.hasNbt())
-                                            ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
-
-                                        raf.writeInt(x);
-                                        raf.writeInt(y);
-                                        raf.writeInt(z);
-
-                                        raf.writeShort(b.id());
                                     }
                                 }
+                            } else {
+                                if (isNew) raf.write(0xF1);
                             }
-                        } else {
-                            if (isNew) raf.write(0xF1);
                         }
                     }
+                    // END WRITING DATA
                 }
-                // END WRITING DATA
             }
         } catch (FileNotFoundException e) {
             log.error("FileNotFoundException caught although checked for file stacktrace: ");
@@ -105,32 +108,35 @@ public class ChunkSaving {
         int relaChunkX = Math.floorMod(chunkX, 32);
         int relaChunkZ = Math.floorMod(chunkZ, 32);
         Path savePath = Paths.get(getSaveFile(regionX, regionZ));
-        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
-            if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
-                if (inputStream.read() == REGION_VERSION) {
-                    for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
-                        for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
-                            int marker = inputStream.read();
-                            if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
-                                if (marker == 0xF1) return null;
-                                if (marker != 0x91) {
-                                    log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null...");
-                                    return null;
-                                }
-                                for (int x = 0; x < 16; x++) {
-                                    for (int y = 0; y < 16; y++) {
-                                        for (int z = 0; z < 16; z++) {
-                                            inputStream.mark(1);
-                                            if (inputStream.read() == 0xF5) continue;
-                                            inputStream.reset();
+        synchronized (getLock(savePath.toString())) {
+            try (RandomAccessFile raf = new RandomAccessFile(savePath.toString(), "r")) {
+                byte[] identifier = new byte[8];
+                raf.readFully(identifier);
+                if (Arrays.equals(identifier, IDENTIFIER_BYTES)) {
+                    if (raf.read() == REGION_VERSION) {
+                        for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
+                            for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
+                                int marker = raf.read();
+                                if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
+                                    if (marker == 0xF1) return null;
+                                    if (marker != 0x91) {
+                                        log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null...");
+                                        return null;
+                                    }
+                                    for (int x = 0; x < 16; x++) {
+                                        for (int y = 0; y < 16; y++) {
+                                            for (int z = 0; z < 16; z++) {
+                                                if (raf.read() == 0xF5) continue;
+                                                raf.seek(raf.getFilePointer() - 1);
 
-                                            int bX = inputStream.readInt();
-                                            int bY = inputStream.readInt();
-                                            int bZ = inputStream.readInt();
+                                                int bX = raf.readInt();
+                                                int bY = raf.readInt();
+                                                int bZ = raf.readInt();
 
-                                            int blockID = inputStream.readUnsignedShort();
+                                                int blockID = raf.readUnsignedShort();
 
-                                            blocksSaved.put(new BlockVec(bX, bY, bZ), Block.fromBlockId(blockID));
+                                                blocksSaved.put(new BlockVec(bX, bY, bZ), Block.fromBlockId(blockID));
+                                            }
                                         }
                                     }
                                 }
@@ -138,11 +144,11 @@ public class ChunkSaving {
                         }
                     }
                 }
+            } catch (FileNotFoundException e) {
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return blocksSaved;
     }
@@ -152,5 +158,8 @@ public class ChunkSaving {
             bytes[i] = (byte) (i * 3 + 2);
         }
         return bytes;
+    }
+    private static Object getLock(String file) {
+        return locks.computeIfAbsent(file, s -> new Object());
     }
 }

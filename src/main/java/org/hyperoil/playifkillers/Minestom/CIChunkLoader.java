@@ -1,7 +1,5 @@
 package org.hyperoil.playifkillers.Minestom;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.IChunkLoader;
@@ -11,10 +9,6 @@ import org.hyperoil.playifkillers.Utils.ChunkSaving;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class CIChunkLoader implements IChunkLoader {
