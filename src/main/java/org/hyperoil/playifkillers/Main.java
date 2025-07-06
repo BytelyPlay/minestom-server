@@ -48,12 +48,13 @@ public class Main {
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
-        executorService.scheduleAtFixedRate(() -> {
-            if (!SAVE_WORLD) return;
-            for (Instance inst : instanceManager.getInstances()) {
-                inst.saveChunksToStorage();
-            }
-        }, 120, 120, TimeUnit.SECONDS);
+        if (SAVE_WORLD) {
+            executorService.scheduleAtFixedRate(() -> {
+                for (Instance inst : instanceManager.getInstances()) {
+                    inst.saveChunksToStorage();
+                }
+            }, 120, 120, TimeUnit.SECONDS);
+        }
 
         instanceManager.getInstances().forEach(instance -> {
             if (instance instanceof @NotNull InstanceContainer container) {

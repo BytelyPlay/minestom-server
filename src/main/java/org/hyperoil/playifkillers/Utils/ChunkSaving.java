@@ -30,6 +30,8 @@ public class ChunkSaving {
         int chunkZ = chunk.getChunkZ();
         int regionX = Math.floorDiv(chunkX, 32);
         int regionZ = Math.floorDiv(chunkZ, 32);
+        int relaChunkX = Math.floorMod(chunkX, 32);
+        int relaChunkZ = Math.floorMod(chunkZ, 32);
         Path regionFile = Paths.get(getSaveFile(regionX, regionZ));
         boolean isNew = !Files.exists(regionFile);
         try {
@@ -49,13 +51,15 @@ public class ChunkSaving {
                     // END VERSION
 
                     // END HEADER
+                } else {
+                    raf.seek(12);
                 }
 
                 // Writing the actual data
                 // START WRITING DATA
                 for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
                     for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
-                        if (relChunkX == Math.floorMod(chunkX, 32) && relChunkZ == Math.floorMod(chunkZ, 32)) {
+                        if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
                             raf.write(0x91);
                             for (int x = 0; x < 16; x++) {
                                 for (int y = 0; y < 16; y++) {
@@ -77,7 +81,7 @@ public class ChunkSaving {
                                 }
                             }
                         } else {
-                            raf.write(0xF1);
+                            if (isNew) raf.write(0xF1);
                         }
                     }
                 }
@@ -96,17 +100,29 @@ public class ChunkSaving {
     }
     public static @Nullable HashMap<BlockVec, Block> loadChunk(int chunkX, int chunkZ) {
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
-        Path savePath = Paths.get(getSaveFile(chunkX, chunkZ));
+        int regionX = Math.floorDiv(chunkX, 32);
+        int regionZ = Math.floorDiv(chunkZ, 32);
+        int relaChunkX = Math.floorMod(chunkX, 32);
+        int relaChunkZ = Math.floorMod(chunkZ, 32);
+        Path savePath = Paths.get(getSaveFile(regionX, regionZ));
         try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
             if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
                 if (inputStream.read() == REGION_VERSION) {
                     for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
                         for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
-                            if (relChunkX == Math.floorMod(chunkX, 32) && relChunkZ == Math.floorMod(chunkZ, 32)) {
+                            int marker = inputStream.read();
+                            if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
+                                if (marker == 0xF1) return null;
+                                if (marker != 0x91) {
+                                    log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null...");
+                                    return null;
+                                }
                                 for (int x = 0; x < 16; x++) {
                                     for (int y = 0; y < 16; y++) {
                                         for (int z = 0; z < 16; z++) {
+                                            inputStream.mark(1);
                                             if (inputStream.read() == 0xF5) continue;
+                                            inputStream.reset();
 
                                             int bX = inputStream.readInt();
                                             int bY = inputStream.readInt();
