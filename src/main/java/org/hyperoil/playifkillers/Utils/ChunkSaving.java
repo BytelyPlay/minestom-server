@@ -125,8 +125,8 @@ public class ChunkSaving {
                                 if (relChunkX == relaChunkX && relChunkZ == relaChunkZ) {
                                     int marker = raf.read();
                                     if (marker == 0xF1) return null;
-                                    if (marker != 0x91) {
-                                        log.warn("marker != 0x91 and isn't 0xF1 could be corrupted... returning null... marker: {}", marker);
+                                    if (marker != 0x09) {
+                                        log.warn("marker != 0x09 and isn't 0xF1 could be corrupted... returning null... marker: {}", marker);
                                         return null;
                                     }
                                     for (int x = 0; x < 16; x++) {
