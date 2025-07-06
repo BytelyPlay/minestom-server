@@ -21,7 +21,7 @@ public class ChunkSaving {
     // TODO: Add NBT support.
     private static final String saveFileChunkCoordSeparator = "-";
     private static final Path savesFolder = Paths.get("./save");
-    private static final int REGION_VERSION = 1;
+    private static final int REGION_VERSION = 2;
     private static final byte[] IDENTIFIER_BYTES = getIdentifierBytes();
     private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
 
@@ -30,42 +30,54 @@ public class ChunkSaving {
         int chunkZ = chunk.getChunkZ();
         int regionX = Math.floorDiv(chunkX, 32);
         int regionZ = Math.floorDiv(chunkZ, 32);
-        String saveFile = getSaveFileForChunk(chunk);
-        Path regionFile = Paths.get(saveFile);
+        Path regionFile = Paths.get(getSaveFile(regionX, regionZ));
+        boolean isNew = !Files.exists(regionFile);
         try {
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
-            if (!Files.exists(regionFile)) Files.createFile(regionFile);
-            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
-                // Header to make sure it's actually a region file and some data:
-                // START HEADER
+            if (isNew) Files.createFile(regionFile);
+            try (RandomAccessFile raf = new RandomAccessFile(regionFile.toString(), "rw")) {
+                if (isNew) {
+                    // Header to make sure it's actually a region file and some data:
+                    // START HEADER
 
-                // START IDENTIFIER
-                outputStream.write(IDENTIFIER_BYTES);
-                // END IDENTIFIER
+                    // START IDENTIFIER
+                    raf.write(IDENTIFIER_BYTES);
+                    // END IDENTIFIER
 
-                // START VERSION
-                outputStream.write(REGION_VERSION);
-                // END VERSION
+                    // START VERSION
+                    raf.write(REGION_VERSION);
+                    // END VERSION
 
-                // END HEADER
+                    // END HEADER
+                }
 
                 // Writing the actual data
                 // START WRITING DATA
-                for (int x = 0; x < 16; x++) {
-                    for (int y = 0; y < 16; y++) {
-                        for (int z = 0; z < 16; z++) {
-                            Block b = chunk.getBlock(x, y, z);
-                            if (b.isAir()) {
-                                outputStream.write(0xF5);
-                                continue;
+                for (int relChunkX = 0; relChunkX < 32; relChunkX++) {
+                    for (int relChunkZ = 0; relChunkZ < 32; relChunkZ++) {
+                        if (relChunkX == Math.floorMod(chunkX, 32) && relChunkZ == Math.floorMod(chunkZ, 32)) {
+                            raf.write(0x91);
+                            for (int x = 0; x < 16; x++) {
+                                for (int y = 0; y < 16; y++) {
+                                    for (int z = 0; z < 16; z++) {
+                                        Block b = chunk.getBlock(x, y, z);
+                                        if (b.isAir()) {
+                                            raf.write(0xF5);
+                                            continue;
+                                        }
+                                        if (b.hasNbt())
+                                            ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+
+                                        raf.writeInt(x);
+                                        raf.writeInt(y);
+                                        raf.writeInt(z);
+
+                                        raf.writeShort(b.id());
+                                    }
+                                }
                             }
-                            if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
-
-                            outputStream.writeInt(x);
-                            outputStream.writeInt(y);
-                            outputStream.writeInt(z);
-
-                            outputStream.writeShort(b.id());
+                        } else {
+                            raf.write(0xF1);
                         }
                     }
                 }
@@ -78,17 +90,9 @@ public class ChunkSaving {
             e.printStackTrace();
         }
     }
-
-    private static String getSaveFileForChunk(Chunk chunk) {
-        return getSaveFile(chunk.getChunkX(), chunk.getChunkZ());
-    }
-
-    private static String getSaveFileForVec(BlockVec vec) {
-        return getSaveFile(vec.chunkX(), vec.chunkZ());
-    }
-    private static String getSaveFile(int chunkX, int chunkZ) {
+    public static String getSaveFile(int regionX, int regionZ) {
         // replace overworld with some instance name.
-        return "./save/" + "overworld" + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
+        return "./save/" + "overworld" + saveFileChunkCoordSeparator + regionX + saveFileChunkCoordSeparator + regionZ + ".r32";
     }
     public static @Nullable HashMap<BlockVec, Block> loadChunk(int chunkX, int chunkZ) {
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
