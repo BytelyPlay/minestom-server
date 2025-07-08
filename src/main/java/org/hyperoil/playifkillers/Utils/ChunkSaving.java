@@ -1,11 +1,8 @@
 package org.hyperoil.playifkillers.Utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.block.Block;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +23,6 @@ public class ChunkSaving {
     private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
 
     public static void saveChunk(Chunk chunk) {
-        int chunkX = chunk.getChunkX();
-        int chunkZ = chunk.getChunkZ();
-        int regionX = Math.floorDiv(chunkX, 32);
-        int regionZ = Math.floorDiv(chunkZ, 32);
         String saveFile = getSaveFileForChunk(chunk);
         Path regionFile = Paths.get(saveFile);
         try {
@@ -73,18 +66,14 @@ public class ChunkSaving {
             }
         } catch (FileNotFoundException e) {
             System.out.println("FileNotFoundException caught although checked for file stacktrace:");
-            e.printStackTrace();
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
     }
 
     private static String getSaveFileForChunk(Chunk chunk) {
         return getSaveFile(chunk.getChunkX(), chunk.getChunkZ());
-    }
-
-    private static String getSaveFileForVec(BlockVec vec) {
-        return getSaveFile(vec.chunkX(), vec.chunkZ());
     }
     private static String getSaveFile(int chunkX, int chunkZ) {
         // replace overworld with some instance name.
@@ -113,7 +102,7 @@ public class ChunkSaving {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
         return blocksSaved;
     }
