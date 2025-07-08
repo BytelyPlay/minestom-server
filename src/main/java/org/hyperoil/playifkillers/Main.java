@@ -1,8 +1,18 @@
 package org.hyperoil.playifkillers;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
@@ -13,11 +23,14 @@ import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import org.hyperoil.playifkillers.Commands.Fill;
+import org.hyperoil.playifkillers.Commands.Gmc;
+import org.hyperoil.playifkillers.Commands.Gms;
 import org.hyperoil.playifkillers.Listeners.BlockControl;
-import org.hyperoil.playifkillers.Listeners.CommandParser;
 import org.hyperoil.playifkillers.Listeners.ItemEvents;
 import org.hyperoil.playifkillers.Listeners.JoinPlayerSetup;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
+import org.hyperoil.playifkillers.Utils.CommandRegistration;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +57,22 @@ public class Main {
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, JoinPlayerSetup::onAsyncPlayerConfigurationEvent);
-        CommandParser commandParser = new CommandParser(executorService, overWorld);
-        globalEventHandler.addListener(PlayerCommandEvent.class, commandParser::onPlayerCommandEvent);
+        CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
+        CommandRegistration.registerCommands(dispatcher);
+        CommandRegistration.register(new Fill(overWorld, executorService));
+        CommandRegistration.register(new Gmc());
+        CommandRegistration.register(new Gms());
+
+
+
+        globalEventHandler.addListener(PlayerCommandEvent.class, e -> {
+            Player p = e.getPlayer();
+            try {
+                dispatcher.execute(e.getCommand(), p);
+            } catch (CommandSyntaxException ex) {
+                p.sendMessage(ex.getMessage());
+            }
+        });
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
