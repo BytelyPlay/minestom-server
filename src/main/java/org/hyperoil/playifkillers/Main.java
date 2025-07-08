@@ -1,12 +1,6 @@
 package org.hyperoil.playifkillers;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
@@ -15,10 +9,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.item.PickupItemEvent;
-import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerBlockBreakEvent;
-import net.minestom.server.event.player.PlayerBlockPlaceEvent;
-import net.minestom.server.event.player.PlayerCommandEvent;
+import net.minestom.server.event.player.*;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
@@ -42,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     // TODO: make a hypixel skyblock recreation.
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
-    public static final Pos SPAWN_POINT = new Pos(new Vec(0, 2, 0));
+    public static final Pos SPAWN_POINT = new Pos(new Vec(0, 105, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static InstanceContainer overWorld;
     public static final boolean SAVE_WORLD = true;
@@ -62,8 +53,6 @@ public class Main {
         CommandRegistration.register(new Fill(overWorld, executorService));
         CommandRegistration.register(new Gmc());
         CommandRegistration.register(new Gms());
-
-
 
         globalEventHandler.addListener(PlayerCommandEvent.class, e -> {
             Player p = e.getPlayer();

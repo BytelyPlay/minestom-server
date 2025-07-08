@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import org.hyperoil.playifkillers.Permissions.User;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,8 @@ public class Gmc implements ICommand {
     public int execute(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSource();
         if (sender instanceof Player p) {
-            if (!p.getUuid().toString().equals("bcbaabb3-f21a-4927-94ad-2979c54f67fc")) {
+            User user = User.getUser(p.getUuid());
+            if (!user.checkPermission("hyperoil.gmc.self")) {
                 p.sendMessage("You are not permitted to do this.");
                 return 1;
             }
