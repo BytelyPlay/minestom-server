@@ -15,7 +15,7 @@ public class Gms implements ICommand {
         CommandSender sender = context.getSource();
         if (sender instanceof Player p) {
             User user = User.getUser(p.getUuid());
-            if (!user.checkPermission("hyperoil.gms.self")) {
+            if (!user.hasPermission("hyperoil.gms.self")) {
                 p.sendMessage("You are not permitted to do this.");
                 return 1;
             }

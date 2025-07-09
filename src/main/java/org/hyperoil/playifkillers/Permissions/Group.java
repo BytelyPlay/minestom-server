@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Group implements PermissionHolder {
     @Override
-    public boolean checkPermission(String perm) {
+    public boolean hasPermission(String perm) {
         return true;
     }
 

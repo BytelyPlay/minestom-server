@@ -15,7 +15,7 @@ public class User implements PermissionHolder {
         this.uuid = uuid;
     }
     @Override
-    public boolean checkPermission(String perm) {
+    public boolean hasPermission(String perm) {
         return true;
     }
 

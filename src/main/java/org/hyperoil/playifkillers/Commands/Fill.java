@@ -6,7 +6,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
-import net.minestom.server.command.builder.Command;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.InstanceContainer;
@@ -15,7 +14,6 @@ import org.hyperoil.playifkillers.Permissions.User;
 import org.hyperoil.playifkillers.Utils.Box;
 import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.hyperoil.playifkillers.Utils.ICommand;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutorService;
@@ -34,7 +32,7 @@ public class Fill implements ICommand {
         CommandSender sender = context.getSource();
         if (sender instanceof Player p) {
             User user = new User(p.getUuid());
-            if (!user.checkPermission("hyperoil.fill")) {
+            if (!user.hasPermission("hyperoil.fill")) {
                 p.sendMessage(ChatColor.RED + "You are not permitted to do that.");
                 return 1;
             }

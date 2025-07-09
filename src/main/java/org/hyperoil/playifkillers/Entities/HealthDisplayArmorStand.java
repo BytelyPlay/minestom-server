@@ -34,11 +34,12 @@ public class HealthDisplayArmorStand extends Entity {
     public void update(long time) {
         updateHealth();
         this.teleport(entity.getPosition().add(0, 0.25, 0));
+        if (entity instanceof Player p) {
+            if (!p.isOnline()) this.remove();
+            return;
+        }
         if (entity.isDead()) {
             this.setCustomNameVisible(false);
-            if (entity instanceof Player p) {
-                if (!p.isOnline()) this.remove(true);
-            }
         }
         if (!entity.isDead() && !this.isCustomNameVisible()) this.setCustomNameVisible(true);
     }

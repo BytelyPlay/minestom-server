@@ -15,7 +15,7 @@ public class Gmc implements ICommand {
         CommandSender sender = context.getSource();
         if (sender instanceof Player p) {
             User user = User.getUser(p.getUuid());
-            if (!user.checkPermission("hyperoil.gmc.self")) {
+            if (!user.hasPermission("hyperoil.gmc.self")) {
                 p.sendMessage("You are not permitted to do this.");
                 return 1;
             }

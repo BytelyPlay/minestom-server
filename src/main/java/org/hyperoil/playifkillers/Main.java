@@ -8,6 +8,8 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.extras.MojangAuth;
@@ -18,6 +20,7 @@ import org.hyperoil.playifkillers.Commands.Fill;
 import org.hyperoil.playifkillers.Commands.Gmc;
 import org.hyperoil.playifkillers.Commands.Gms;
 import org.hyperoil.playifkillers.Listeners.BlockControl;
+import org.hyperoil.playifkillers.Listeners.EntityDamaging;
 import org.hyperoil.playifkillers.Listeners.ItemEvents;
 import org.hyperoil.playifkillers.Listeners.JoinPlayerSetup;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
@@ -65,6 +68,7 @@ public class Main {
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, BlockControl::onPlayerBlockBreakEvent);
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
+        globalEventHandler.addListener(EntityAttackEvent.class, EntityDamaging::attack);
         executorService.scheduleAtFixedRate(() -> {
             if (!SAVE_WORLD) return;
             for (Instance inst : instanceManager.getInstances()) {
@@ -83,6 +87,8 @@ public class Main {
                 inst.saveChunksToStorage();
             }
         }));
+
+        executorService.scheduleAtFixedRate(EntityDamaging::clearLastDamaged, 10L, 10L, TimeUnit.SECONDS);
 
         minecraftServer.start("127.0.0.1", 25565);
     }
