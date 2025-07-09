@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     // TODO: make a hypixel skyblock recreation.
-    public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
+    public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 105, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     public static InstanceContainer overWorld;
@@ -86,6 +86,7 @@ public class Main {
             for (Instance inst : instanceManager.getInstances()) {
                 inst.saveChunksToStorage();
             }
+            executorService.shutdown();
         }));
 
         executorService.scheduleAtFixedRate(EntityDamaging::clearLastDamaged, 10L, 10L, TimeUnit.SECONDS);

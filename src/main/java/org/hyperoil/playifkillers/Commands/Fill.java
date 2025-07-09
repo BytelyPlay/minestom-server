@@ -16,11 +16,11 @@ import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 public class Fill implements ICommand {
     private final InstanceContainer container;
-    // MIGHT ADD IT SO KEEPING IT.
     private final ExecutorService service;
 
     public Fill(InstanceContainer contain, ExecutorService executorService) {
@@ -50,10 +50,11 @@ public class Fill implements ICommand {
             sender.sendMessage("Please provide a valid block.");
             return 1;
         }
-        for (BlockVec vec : box.getAllBlocks(container)) {
-            container.setBlock(vec, block);
-        }
-        sender.sendMessage("Done...");
+        CompletableFuture.runAsync(() -> {
+            for (BlockVec vec : box.getAllBlocks(container)) {
+                container.setBlock(vec, block);
+            }
+        }, service).thenRun(() -> sender.sendMessage(ChatColor.GREEN + "Done..."));
         return 1;
     }
 
