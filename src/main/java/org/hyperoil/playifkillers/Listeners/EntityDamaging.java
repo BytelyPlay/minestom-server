@@ -20,6 +20,7 @@ public class EntityDamaging {
         Entity entity = e.getEntity();
         Entity target = e.getTarget();
         if (target instanceof LivingEntity living) {
+            if (living instanceof Player p && !p.getItemInMainHand().isAir()) return;
             long lastDamage = lastDamaged.getOrDefault(living.getUuid(), 0L);
             if (Main.overWorld.getTime() - lastDamage < 10) return;
 

@@ -19,10 +19,8 @@ import net.minestom.server.instance.InstanceManager;
 import org.hyperoil.playifkillers.Commands.Fill;
 import org.hyperoil.playifkillers.Commands.Gmc;
 import org.hyperoil.playifkillers.Commands.Gms;
-import org.hyperoil.playifkillers.Listeners.BlockControl;
-import org.hyperoil.playifkillers.Listeners.EntityDamaging;
-import org.hyperoil.playifkillers.Listeners.ItemEvents;
-import org.hyperoil.playifkillers.Listeners.JoinPlayerSetup;
+import org.hyperoil.playifkillers.Items.Hyperion;
+import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Utils.CommandRegistration;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +67,11 @@ public class Main {
         globalEventHandler.addListener(PlayerBlockPlaceEvent.class, BlockControl::onPlayerBlockPlaceEvent);
         globalEventHandler.addListener(PickupItemEvent.class, ItemEvents::onPickUpItemEvent);
         globalEventHandler.addListener(EntityAttackEvent.class, EntityDamaging::attack);
+        globalEventHandler.addListener(EntityAttackEvent.class, CustomItems::punch);
+        globalEventHandler.addListener(PlayerEntityInteractEvent.class, CustomItems::entityInteract);
+        globalEventHandler.addListener(PlayerBlockInteractEvent.class, CustomItems::blockInteract);
+        globalEventHandler.addListener(PlayerUseItemEvent.class, CustomItems::useItem);
+
         executorService.scheduleAtFixedRate(() -> {
             if (!SAVE_WORLD) return;
             for (Instance inst : instanceManager.getInstances()) {
