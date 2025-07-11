@@ -1,10 +1,14 @@
 package org.hyperoil.playifkillers.Listeners;
 
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.instance.Instance;
 import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
+import org.hyperoil.playifkillers.Entities.Zombie;
 import org.hyperoil.playifkillers.Items.Hyperion;
 import org.hyperoil.playifkillers.Main;
 
@@ -18,7 +22,7 @@ public class JoinPlayerSetup {
         p.setRespawnPoint(SPAWN_POINT);
 
         Entity e = new HealthDisplayArmorStand(p);
-        e.setInstance(overWorld);
+        e.setInstance(overWorld, p.getPosition());
         e.spawn();
 
         Hyperion hyperion = new Hyperion();

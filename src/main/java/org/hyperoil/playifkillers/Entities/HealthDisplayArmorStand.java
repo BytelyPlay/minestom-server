@@ -8,11 +8,13 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
+import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 public class HealthDisplayArmorStand extends Entity {
@@ -32,16 +34,18 @@ public class HealthDisplayArmorStand extends Entity {
     }
     @Override
     public void update(long time) {
-        updateHealth();
-        this.teleport(entity.getPosition().add(0, 0.25, 0));
-        if (entity instanceof Player p) {
-            if (!p.isOnline()) this.remove();
-            return;
-        }
-        if (entity.isDead()) {
-            this.setCustomNameVisible(false);
-        }
-        if (!entity.isDead() && !this.isCustomNameVisible()) this.setCustomNameVisible(true);
+        Main.executorService.submit(() -> {
+            updateHealth();
+            this.teleport(entity.getPosition().add(0, 0.25, 0));
+            if (entity instanceof Player p) {
+                if (!p.isOnline()) this.remove();
+                return;
+            }
+            if (entity.isDead()) {
+                this.setCustomNameVisible(false);
+            }
+            if (!entity.isDead() && !this.isCustomNameVisible()) this.setCustomNameVisible(true);
+        });
     }
     private void setCustomName(String s) {
         this.set(DataComponents.CUSTOM_NAME, Component.text(s));

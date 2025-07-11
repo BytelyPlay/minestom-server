@@ -10,6 +10,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.entity.EntityDamageEvent;
+import net.minestom.server.event.entity.EntityDeathEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.extras.MojangAuth;
@@ -19,6 +20,7 @@ import net.minestom.server.instance.InstanceManager;
 import org.hyperoil.playifkillers.Commands.Fill;
 import org.hyperoil.playifkillers.Commands.Gmc;
 import org.hyperoil.playifkillers.Commands.Gms;
+import org.hyperoil.playifkillers.Commands.Spawn;
 import org.hyperoil.playifkillers.Items.Hyperion;
 import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     // TODO: make a hypixel skyblock recreation.
+    // TODO: make the custom health system first... probably just going to extend a few things we'll have to see
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 105, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -54,6 +57,7 @@ public class Main {
         CommandRegistration.register(new Fill(overWorld, executorService));
         CommandRegistration.register(new Gmc());
         CommandRegistration.register(new Gms());
+        CommandRegistration.register(new Spawn());
 
         globalEventHandler.addListener(PlayerCommandEvent.class, e -> {
             Player p = e.getPlayer();
@@ -71,6 +75,7 @@ public class Main {
         globalEventHandler.addListener(PlayerEntityInteractEvent.class, CustomItems::entityInteract);
         globalEventHandler.addListener(PlayerBlockInteractEvent.class, CustomItems::blockInteract);
         globalEventHandler.addListener(PlayerUseItemEvent.class, CustomItems::useItem);
+        globalEventHandler.addListener(EntityDeathEvent.class, EntityDeathHandler::death);
 
         executorService.scheduleAtFixedRate(() -> {
             if (!SAVE_WORLD) return;
