@@ -24,6 +24,7 @@ import org.hyperoil.playifkillers.Commands.Spawn;
 import org.hyperoil.playifkillers.Items.Hyperion;
 import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.CommandRegistration;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
+    // TODO: this one takes priority: figure out how to deduplicate the custom health system because right now IT IS A MESS... also without losing clarity...
     // TODO: make a hypixel skyblock recreation.
     // TODO: make the custom health system first... probably just going to extend a few things we'll have to see
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
@@ -44,6 +46,7 @@ public class Main {
     private Main() {}
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init();
+        MinecraftServer.getConnectionManager().setPlayerProvider(CPlayer::new);
         MojangAuth.init();
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();

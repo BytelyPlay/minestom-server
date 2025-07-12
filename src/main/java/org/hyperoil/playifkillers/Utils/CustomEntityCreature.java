@@ -30,7 +30,7 @@ public class CustomEntityCreature extends EntityCreature implements CustomHealth
 
     @Override
     public double getCustomMaxHealth() {
-        return customHealth;
+        return customMaxHealth;
     }
 
     @Override

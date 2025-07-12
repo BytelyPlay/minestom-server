@@ -1,22 +1,39 @@
-package org.hyperoil.playifkillers.Utils;
+package org.hyperoil.playifkillers.Minestom;
 
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
+import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeInstance;
-import net.minestom.server.entity.attribute.AttributeModifier;
-import net.minestom.server.entity.damage.Damage;
+import net.minestom.server.network.ConnectionState;
+import net.minestom.server.network.player.GameProfile;
+import net.minestom.server.network.player.PlayerConnection;
+import net.minestom.server.timer.TaskSchedule;
+import org.hyperoil.playifkillers.Utils.ChatColor;
+import org.hyperoil.playifkillers.Utils.CustomHealthSystem;
+import org.hyperoil.playifkillers.Utils.CustomLivingEntity;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
-public class CustomLivingEntity extends LivingEntity implements CustomHealthSystem {
+public class CPlayer extends Player implements CustomHealthSystem {
+    private static final Logger log = LoggerFactory.getLogger(CPlayer.class);
     private double customHealth = 0;
     private double customMaxHealth = 0;
 
-    public CustomLivingEntity(@NotNull EntityType entityType) {
-        super(entityType);
+    public CPlayer(@NotNull PlayerConnection playerConnection, @NotNull GameProfile gameProfile) {
+        super(playerConnection, gameProfile);
+
+        this.setCustomHealth(1024.00);
+
+        MinecraftServer.getSchedulerManager().scheduleTask(this::updateActionBar,
+                TaskSchedule.tick(1), TaskSchedule.tick(1));
+    }
+
+    private void updateActionBar() {
+        if (this.getPlayerConnection().getConnectionState() == ConnectionState.PLAY) {
+            this.sendActionBar(Component.text(ChatColor.RED + "" + getCustomHealth() + "/" + getCustomMaxHealth()));
+        }
     }
 
     @Override
