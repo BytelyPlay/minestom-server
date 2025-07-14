@@ -9,7 +9,6 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ParticlesHelper {
     public static void spawnParticle(BlockVec vec, Particle particle, int count, float speed) {

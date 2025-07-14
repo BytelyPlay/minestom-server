@@ -4,12 +4,7 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeInstance;
-import net.minestom.server.entity.attribute.AttributeModifier;
-import net.minestom.server.entity.damage.Damage;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Field;
-import java.util.Map;
 
 public class CustomLivingEntity extends LivingEntity implements CustomHealthSystem {
     private double customHealth = 0;

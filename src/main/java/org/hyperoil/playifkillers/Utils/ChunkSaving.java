@@ -2,6 +2,7 @@ package org.hyperoil.playifkillers.Utils;
 
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.Section;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -25,6 +26,14 @@ public class ChunkSaving {
     public static void saveChunk(Chunk chunk) {
         String saveFile = getSaveFileForChunk(chunk);
         Path regionFile = Paths.get(saveFile);
+        boolean chunkFullyAir = true;
+        for (Section section : chunk.getSections()) {
+            if (section.blockPalette().count() != 0) {
+                chunkFullyAir = false;
+                break;
+            }
+        }
+        if (chunkFullyAir) return;
         try {
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (!Files.exists(regionFile)) Files.createFile(regionFile);

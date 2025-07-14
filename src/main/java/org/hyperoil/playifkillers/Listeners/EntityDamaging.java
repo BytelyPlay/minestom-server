@@ -5,7 +5,6 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
 import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.NotNull;

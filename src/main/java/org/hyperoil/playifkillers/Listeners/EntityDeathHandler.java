@@ -6,7 +6,6 @@ import net.minestom.server.event.entity.EntityDeathEvent;
 import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 public class EntityDeathHandler {

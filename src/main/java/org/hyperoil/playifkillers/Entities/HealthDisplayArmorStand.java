@@ -1,7 +1,6 @@
 package org.hyperoil.playifkillers.Entities;
 
 import net.kyori.adventure.text.Component;
-import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
@@ -10,12 +9,8 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Utils.ChatColor;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
 
 public class HealthDisplayArmorStand extends Entity {
     private static final Logger log = LoggerFactory.getLogger(HealthDisplayArmorStand.class);

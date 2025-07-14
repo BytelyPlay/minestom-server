@@ -1,17 +1,15 @@
 package org.hyperoil.playifkillers.Entities;
 
-import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.*;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.Damage;
 import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Utils.CustomEntityCreature;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.UUID;
 
 public class Zombie extends CustomEntityCreature {
     private static final Logger log = LoggerFactory.getLogger(Zombie.class);

@@ -1,6 +1,5 @@
 package org.hyperoil.playifkillers.Listeners;
 
-import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
@@ -11,9 +10,7 @@ import net.minestom.server.item.ItemStack;
 import org.hyperoil.playifkillers.Utils.Item;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CustomItems {
     // TODO: replace with something competent.

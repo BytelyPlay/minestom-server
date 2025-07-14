@@ -2,8 +2,6 @@ package org.hyperoil.playifkillers.Items;
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
@@ -14,14 +12,9 @@ import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
-import net.minestom.server.instance.Explosion;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.block.Block;
-import net.minestom.server.instance.block.BlockSoundType;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.network.packet.server.SendablePacket;
-import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.sound.SoundEvent;
 import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
@@ -30,11 +23,6 @@ import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.hyperoil.playifkillers.Utils.Item;
 import org.hyperoil.playifkillers.Utils.ParticlesHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 public class Hyperion implements Item {
     private static final int BLOCKS_PER_TELEPORT = 5;
