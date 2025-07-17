@@ -37,7 +37,7 @@ public class Zombie extends CustomEntityCreature {
         if (p.getPosition().distance(pos) < 1) {
             if (lastDamagedInTicks > 10) {
                 lastDamagedInTicks = 0;
-                p.damage(Damage.fromEntity(this, 1.0f));
+                p.damage(Damage.fromEntity(this, 2.5f));
             } else {
                 lastDamagedInTicks++;
             }

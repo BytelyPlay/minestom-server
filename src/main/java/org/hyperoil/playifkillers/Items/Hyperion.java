@@ -17,14 +17,18 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.sound.SoundEvent;
-import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
 import org.hyperoil.playifkillers.Main;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.hyperoil.playifkillers.Utils.Item;
 import org.hyperoil.playifkillers.Utils.ParticlesHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class Hyperion implements Item {
+    private static final double baseDamage = 4000;
+    private static final int MIN_PARTICLE_RADIUS = -2;
+    private static final int MAX_PARTICLE_RADIUS = 3;
+    private static final int KILL_RADIUS = 6;
     private static final int BLOCKS_PER_TELEPORT = 5;
     private final ItemStack item;
     public Hyperion() {
@@ -41,12 +45,10 @@ public class Hyperion implements Item {
 
     @Override
     public void rightClick(@NotNull PlayerBlockInteractEvent e) {
-        useItem(e.getPlayer(), e.getInstance());
     }
 
     @Override
     public void rightClick(@NotNull PlayerEntityInteractEvent e) {
-        useItem(e.getPlayer(), e.getInstance());
     }
 
     @Override
@@ -58,11 +60,9 @@ public class Hyperion implements Item {
     public void punch(@NotNull EntityAttackEvent e) {
         Entity target = e.getTarget();
         Entity entity = e.getEntity();
-        if (target instanceof LivingEntity living) {
-            living.damage(Damage.fromEntity(entity, 10f));
-        } else {
-            if (!(target instanceof HealthDisplayArmorStand)) {
-                target.remove();
+        if (entity instanceof CPlayer cp) {
+            if (target instanceof LivingEntity living) {
+                living.damage(Damage.fromEntity(entity, (float) getPunchDamage(cp)));
             }
         }
     }
@@ -98,29 +98,55 @@ public class Hyperion implements Item {
                         .withPitch(pitch));
             }
 
-            for (int x = 0; x < 3; x++) {
-                for (int y = 0; y < 3; y++) {
-                    for (int z = 0; z < 3; z++) {
+            for (int x = MIN_PARTICLE_RADIUS; x < MAX_PARTICLE_RADIUS; x++) {
+                for (int y = MIN_PARTICLE_RADIUS; y < MAX_PARTICLE_RADIUS; y++) {
+                    for (int z = MIN_PARTICLE_RADIUS; z < MAX_PARTICLE_RADIUS; z++) {
                         ParticlesHelper.spawnParticle(pos.add(x, y, z), Particle.EXPLOSION, 1, 0.1f);
                     }
                 }
             }
             p.playSound(Sound.sound(SoundEvent.ENTITY_GENERIC_EXPLODE, Sound.Source.PLAYER, 1, 1));
 
-            final float[] damage = {10};
-            inst.getNearbyEntities(pos, 5)
+            final double damage = getAbilityDamage(p);
+
+            inst.getNearbyEntities(pos, KILL_RADIUS)
                     .stream()
                     .filter(entity -> !entity.equals(p))
                     .forEach(entity -> {
-                        damage[0] *= 2;
                         if (entity instanceof LivingEntity living) {
-                            living.damage(Damage.fromPlayer(p, damage[0]));
-                        } else {
-                            if (!(entity instanceof HealthDisplayArmorStand)) {
-                                entity.remove();
-                            }
+                            living.damage(Damage.fromPlayer(p, (float) damage));
                         }
                     });
         });
+    }
+
+    private double getAbilityDamage(Player p) {
+        CPlayer cp = CPlayer.getCPlayer(p);
+        double abilityDamage = cp.getTotalAbilityDamage();
+        double intelligence = cp.getIntelligence();
+        // TODO: still going to have to implement
+        double damageMultiplier = 1.7;
+        double additiveMultiplier = 1.4;
+        double abilityScaling = 4;
+
+        // found on a random forum: BaseAbilityDamage * (1 + Intelligence*AbilityScaling/100) * (1+AbilityDamage/100) * AdditiveMultipliers * MultiplicativeMultipliers
+        // tried to implement good also made some adjustments as i felt that was wrong...
+        return baseDamage + abilityDamage * (1 + intelligence*abilityScaling/100) * (1+abilityDamage/100) * additiveMultiplier * damageMultiplier;
+    }
+    private double getPunchDamage(Player p) {
+        CPlayer cp = CPlayer.getCPlayer(p);
+        double critDamage = cp.getTotalCritDamage();
+        double strength = cp.getTotalStrength();
+        // TODO: still going to have to implement
+        double damageMultiplier = 1.7;
+        double additiveMultiplier = 1.4;
+        double abilityScaling = 4;
+
+        double damage = baseDamage + (strength * 1.2) * 2;
+
+        if (cp.rollIsCritical()) {
+            damage *= 1 + critDamage / 100;
+        }
+        return damage;
     }
 }

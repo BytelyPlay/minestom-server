@@ -26,7 +26,7 @@
         <dependency>
             <groupId>net.minestom</groupId>
             <artifactId>minestom</artifactId>
-            <version>2025.07.08-1.21.5</version>
+            <version>2025.07.14-1.21.7</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -4,9 +4,14 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeInstance;
+import net.minestom.server.entity.damage.Damage;
+import org.hyperoil.playifkillers.Entities.DamageDisplayArmorStand;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomEntityCreature extends EntityCreature implements CustomHealthSystem {
+    private static final Logger log = LoggerFactory.getLogger(CustomEntityCreature.class);
     private double customHealth = 0;
     private double customMaxHealth = 0;
     public CustomEntityCreature(@NotNull EntityType entityType) {
@@ -56,5 +61,12 @@ public class CustomEntityCreature extends EntityCreature implements CustomHealth
         if (attribute.attribute() == Attribute.MAX_HEALTH) {
             customMaxHealth = attribute.getBaseValue();
         }
+    }
+
+
+    @Override
+    public boolean damage(@NotNull Damage damage) {
+        new DamageDisplayArmorStand(this.getPosition(), damage.getAmount(), this.getInstance());
+        return super.damage(damage);
     }
 }

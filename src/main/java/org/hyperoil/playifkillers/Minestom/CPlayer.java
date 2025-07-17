@@ -1,6 +1,7 @@
 package org.hyperoil.playifkillers.Minestom;
 
 import net.kyori.adventure.text.Component;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeInstance;
@@ -12,14 +13,21 @@ import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import org.hyperoil.playifkillers.Utils.ChatColor;
 import org.hyperoil.playifkillers.Utils.CustomHealthSystem;
+import org.hyperoil.playifkillers.Utils.StatsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class CPlayer extends Player implements CustomHealthSystem {
+public class CPlayer extends Player implements CustomHealthSystem, StatsHolder {
+    public static CPlayer getCPlayer(Player p) {
+        return (CPlayer) p;
+    }
+
     private static final Logger log = LoggerFactory.getLogger(CPlayer.class);
     private double customHealth = 0;
     private double customMaxHealth = 0;
@@ -27,7 +35,7 @@ public class CPlayer extends Player implements CustomHealthSystem {
     public CPlayer(@NotNull PlayerConnection playerConnection, @NotNull GameProfile gameProfile) {
         super(playerConnection, gameProfile);
 
-        this.setCustomHealth(999999999999999999d);
+        this.setCustomHealth(20d);
     }
 
     private @Nullable SendablePacket interceptPacket(@NotNull SendablePacket packet) {
@@ -112,6 +120,7 @@ public class CPlayer extends Player implements CustomHealthSystem {
     }
 
     private void regenerateHealth() {
+        if (isDead()) return;
         double currentMaxHealth = this.getCustomMaxHealth();
         double currentHealth = this.getCustomHealth();
         if (currentHealth >= currentMaxHealth) return;
@@ -165,5 +174,399 @@ public class CPlayer extends Player implements CustomHealthSystem {
         if (attribute.attribute() == Attribute.MAX_HEALTH) {
             customMaxHealth = attribute.getBaseValue();
         }
+    }
+
+    // Stats holder implementation...
+    // TODO: call a method in used items and armors combine their stats to return the total or regular stats and accessories
+
+    @Override
+    public double getStrength() {
+        return 1000;
+    }
+
+    @Override
+    public void addStrength(double amount) {
+
+    }
+
+    @Override
+    public void subtractStrength(double amount) {
+
+    }
+
+    @Override
+    public double getCritDamage() {
+        return 1000;
+    }
+
+    @Override
+    public void addCritDamage(double amount) {
+
+    }
+
+    @Override
+    public void subtractCritDamage(double amount) {
+
+    }
+
+    @Override
+    public double getCritChance() {
+        return 1000;
+    }
+
+    @Override
+    public void addCritChance(double amount) {
+
+    }
+
+    @Override
+    public void subtractCritChance(double amount) {
+
+    }
+
+    @Override
+    public double getHealthStat() {
+        return 1000;
+    }
+
+    @Override
+    public void addHealth(double amount) {
+
+    }
+
+    @Override
+    public void subtractHealth(double amount) {
+
+    }
+
+    @Override
+    public double getDefense() {
+        return 1000;
+    }
+
+    @Override
+    public void addDefense(double amount) {
+
+    }
+
+    @Override
+    public void subtractDefense(double amount) {
+
+    }
+
+    @Override
+    public double getSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public void addSpeed(double amount) {
+
+    }
+
+    @Override
+    public void subtractSpeed(double amount) {
+
+    }
+
+    @Override
+    public double getIntelligence() {
+        return 1000;
+    }
+
+    @Override
+    public void addIntelligence(double amount) {
+
+    }
+
+    @Override
+    public void subtractIntelligence(double amount) {
+
+    }
+
+    @Override
+    public double getAttackSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public void addAttackSpeed(double amount) {
+
+    }
+
+    @Override
+    public void subtractAttackSpeed(double amount) {
+
+    }
+
+    @Override
+    public double getTrueDefense() {
+        return 1000;
+    }
+
+    @Override
+    public void addTrueDefense(double amount) {
+
+    }
+
+    @Override
+    public void subtractTrueDefense(double amount) {
+
+    }
+
+    @Override
+    public double getFerocity() {
+        return 1000;
+    }
+
+    @Override
+    public void addFerocity(double amount) {
+
+    }
+
+    @Override
+    public void subtractFerocity(double amount) {
+
+    }
+
+    @Override
+    public double getAbilityDamage() {
+        return 1000;
+    }
+
+    @Override
+    public void addAbilityDamage(double amount) {
+
+    }
+
+    @Override
+    public void subtractAbilityDamage(double amount) {
+
+    }
+
+    @Override
+    public double getTotalStrength() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalCritDamage() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalCritChance() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalHealth() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalDefense() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalIntelligence() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalAttackSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalTrueDefense() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalFerocity() {
+        return 1000;
+    }
+
+    @Override
+    public double getTotalAbilityDamage() {
+        return 1000;
+    }
+
+    @Override
+    public double getPermaStrength() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaStrength(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaStrength(double amount) {
+
+    }
+
+    @Override
+    public double getPermaCritDamage() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaCritDamage(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaCritDamage(double amount) {
+
+    }
+
+    @Override
+    public double getPermaCritChance() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaCritChance(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaCritChance(double amount) {
+
+    }
+
+    @Override
+    public double getPermaHealth() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaHealth(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaHealth(double amount) {
+
+    }
+
+    @Override
+    public double getPermaDefense() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaDefense(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaDefense(double amount) {
+
+    }
+
+    @Override
+    public double getPermaSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaSpeed(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaSpeed(double amount) {
+
+    }
+
+    @Override
+    public double getPermaIntelligence() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaIntelligence(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaIntelligence(double amount) {
+
+    }
+
+    @Override
+    public double getPermaAttackSpeed() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaAttackSpeed(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaAttackSpeed(double amount) {
+
+    }
+
+    @Override
+    public double getPermaTrueDefense() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaTrueDefense(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaTrueDefense(double amount) {
+
+    }
+
+    @Override
+    public double getPermaFerocity() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaFerocity(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaFerocity(double amount) {
+
+    }
+
+    @Override
+    public double getPermaAbilityDamage() {
+        return 1000;
+    }
+
+    @Override
+    public void addPermaAbilityDamage(double amount) {
+
+    }
+
+    @Override
+    public void subtractPermaAbilityDamage(double amount) {
+
+    }
+
+    public boolean rollIsCritical() {
+        double randomDouble = ThreadLocalRandom.current().nextDouble(1, 100);
+        double critChance = getTotalCritChance();
+        return randomDouble > 50 - critChance && randomDouble < critChance + 50;
     }
 }

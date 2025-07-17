@@ -5,9 +5,12 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.inventory.EquipmentHandler;
 import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
 import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -19,16 +22,12 @@ public class EntityDamaging {
         Entity entity = e.getEntity();
         Entity target = e.getTarget();
         if (target instanceof LivingEntity living) {
-            if (living instanceof Player p && !p.getItemInMainHand().isAir()) return;
+            if (entity instanceof Player p && !p.getItemInMainHand().isAir()) return;
             long lastDamage = lastDamaged.getOrDefault(living.getUuid(), 0L);
             if (Main.overWorld.getTime() - lastDamage < 10) return;
 
             lastDamaged.put(living.getUuid(), Main.overWorld.getTime());
             living.damage(Damage.fromEntity(entity, 1f));
-        } else {
-            if (!(target instanceof HealthDisplayArmorStand)) {
-                target.remove();
-            }
         }
     }
     public static void clearLastDamaged() {
