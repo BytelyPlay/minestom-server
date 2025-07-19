@@ -12,7 +12,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Permissions.User;
 import org.hyperoil.playifkillers.Utils.Box;
-import org.hyperoil.playifkillers.Utils.ChatColor;
+import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 

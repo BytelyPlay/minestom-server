@@ -1,4 +1,4 @@
-package org.hyperoil.playifkillers.Listeners;
+package org.hyperoil.playifkillers.ControlActions;
 
 import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.LivingEntity;

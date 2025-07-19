@@ -1,4 +1,4 @@
-package org.hyperoil.playifkillers.Utils;
+package org.hyperoil.playifkillers.Utils.Enums;
 
 public enum ChatColor {
     BLACK("§0"),

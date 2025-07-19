@@ -1,4 +1,4 @@
-package org.hyperoil.playifkillers.Listeners;
+package org.hyperoil.playifkillers.ControlActions;
 
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
@@ -6,6 +6,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import org.hyperoil.playifkillers.Main;
+import org.hyperoil.playifkillers.Utils.ActionAllowed;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -19,7 +20,6 @@ public class EntityDamaging {
         Entity entity = e.getEntity();
         Entity target = e.getTarget();
         if (target instanceof LivingEntity living) {
-            if (entity instanceof Player p && !p.getItemInMainHand().isAir()) return;
             long lastDamage = lastDamaged.getOrDefault(living.getUuid(), 0L);
             if (Main.overWorld.getTime() - lastDamage < 10) return;
 
