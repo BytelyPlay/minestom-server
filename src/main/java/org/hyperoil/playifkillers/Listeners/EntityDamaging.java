@@ -5,20 +5,17 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.inventory.EquipmentHandler;
-import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
 import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 public class EntityDamaging {
-    // Eventually after adding mobs we will deny any attacking between players.
+    private static final boolean ALLOW_DAMAGING = false;
     private static HashMap<UUID, Long> lastDamaged = new HashMap<>();
     public static void attack(@NotNull EntityAttackEvent e) {
+        if (!ALLOW_DAMAGING) return;
         Entity entity = e.getEntity();
         Entity target = e.getTarget();
         if (target instanceof LivingEntity living) {

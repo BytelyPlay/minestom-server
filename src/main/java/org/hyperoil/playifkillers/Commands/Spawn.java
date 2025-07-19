@@ -8,7 +8,6 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
-import org.hyperoil.playifkillers.Entities.Zombie;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 

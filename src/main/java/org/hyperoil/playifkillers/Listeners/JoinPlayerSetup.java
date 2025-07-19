@@ -3,7 +3,6 @@ package org.hyperoil.playifkillers.Listeners;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import org.hyperoil.playifkillers.Entities.HealthDisplayArmorStand;
 import org.hyperoil.playifkillers.Items.Hyperion;
 
 import static org.hyperoil.playifkillers.Main.SPAWN_POINT;

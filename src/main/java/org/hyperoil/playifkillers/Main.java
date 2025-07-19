@@ -34,8 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     // TODO: this one takes priority: figure out how to deduplicate the custom health system because right now IT IS A MESS... also without losing clarity...
-    // TODO: make a hypixel skyblock recreation.
-    // TODO: make the custom health system first... probably just going to extend a few things we'll have to see
+    // TODO: make this instead a recreation of minigamz...
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     public static final Pos SPAWN_POINT = new Pos(new Vec(0, 105, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
