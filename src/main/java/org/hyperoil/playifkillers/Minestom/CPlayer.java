@@ -4,14 +4,26 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
+import org.hyperoil.playifkillers.Permissions.Group;
+import org.hyperoil.playifkillers.Permissions.User;
+import org.hyperoil.playifkillers.Utils.Enums.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class CPlayer extends Player {
+    private final User user = new User(this.getUuid());
     public static CPlayer getCPlayer(Player p) {
         return (CPlayer) p;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public boolean hasPermission(Permission perm) {
+        return user.hasPermission(perm);
     }
 
     public CPlayer(@NotNull PlayerConnection playerConnection, @NotNull GameProfile gameProfile) {

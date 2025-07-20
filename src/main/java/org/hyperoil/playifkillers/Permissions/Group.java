@@ -1,25 +1,29 @@
 package org.hyperoil.playifkillers.Permissions;
 
+import org.hyperoil.playifkillers.Utils.Enums.Permission;
+
 import java.util.List;
 
-public class Group implements PermissionHolder {
-    @Override
-    public boolean hasPermission(String perm) {
-        return true;
+public enum Group {
+    ADMIN(1, List.of(Permission.WILDCARD));
+
+    private final List<Permission> permissions;
+    private final int identifier;
+
+    Group(int ID, List<Permission> perms) {
+        permissions = perms;
+        identifier = ID;
     }
 
-    @Override
-    public void addPermission(String perm) {
-        throw new IllegalCallerException("Not implemented.");
+    public List<Permission> getPermissions() {
+        return permissions;
     }
 
-    @Override
-    public void removePermission(String perm) {
-        throw new IllegalCallerException("Not implemented.");
+    public int getIdentifier() {
+        return identifier;
     }
 
-    @Override
-    public List<String> getPermissions() {
-        throw new IllegalCallerException("Not implemented.");
+    public boolean hasPermission(Permission perm) {
+        return permissions.contains(perm) || permissions.contains(Permission.WILDCARD);
     }
 }

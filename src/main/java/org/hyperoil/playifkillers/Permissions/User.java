@@ -1,36 +1,29 @@
 package org.hyperoil.playifkillers.Permissions;
 
-import java.util.HashMap;
-import java.util.List;
+import org.hyperoil.playifkillers.Utils.Enums.Permission;
+
+import java.util.ArrayList;
 import java.util.UUID;
 
-public class User implements PermissionHolder {
-    private static HashMap<UUID, User> userHashMap = new HashMap<>();
+public class User extends PermissionHolder {
+    private final ArrayList<Group> groups = new ArrayList<>();
     private final UUID player;
 
-    public static User getUser(UUID uuid) {
-        return userHashMap.computeIfAbsent(uuid, User::new);
-    }
     public User(UUID uuid) {
         this.player = uuid;
-    }
-    @Override
-    public boolean hasPermission(String perm) {
-        return true;
+        // TODO: Make this a database retrieval thing... or better yet make a different class retrieve the thing and this class just being bombarded with addPermission and addGroup calls...
+        if (player.toString().equals("bcbaabb3-f21a-4927-94ad-2979c54f67fc")) this.addGroup(Group.ADMIN);
     }
 
     @Override
-    public void addPermission(String perm) {
-        throw new IllegalCallerException("Not implemented.");
+    public boolean hasPermission(Permission perm) {
+        for (Group group : groups) {
+            if (group.hasPermission(perm)) return true;
+        }
+        return super.hasPermission(perm);
     }
 
-    @Override
-    public void removePermission(String perm) {
-        throw new IllegalCallerException("Not implemented.");
-    }
-
-    @Override
-    public List<String> getPermissions() {
-        throw new IllegalCallerException("Not implemented.");
+    public void addGroup(Group group) {
+        groups.add(group);
     }
 }

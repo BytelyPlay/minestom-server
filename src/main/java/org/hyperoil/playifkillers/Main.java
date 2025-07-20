@@ -7,7 +7,6 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.Event;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
@@ -40,19 +39,18 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     // concurrency is the goal... (don't overdo it that is just bad)
-    // TODO: REPLACE THIS WITH A INSTANCED MAIN CLASS AND REPLACE ALL INSTANCES WITH GETTERS AND NO SETTERS... maybe also final...
-    // TODO: this one takes priority: figure out how to deduplicate the custom health system because right now IT IS A MESS... also without losing clarity...
     // TODO: make this instead a recreation of minigamz...
-    // TODO: make or use a permissions system for god's sake
 
     // half the available cores...
-    public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
-    public static final Pos SPAWN_POINT = new Pos(new Vec(0, 105, 0));
+    private static Main instance;
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0, 105, 0));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    public static Instance lobby;
+    private final Instance lobby;
     public static final boolean SAVE_WORLD = true;
-    private Main() {}
-    public static void main(String[] args) {
+    private Main() {
+        instance = this;
+
         MinecraftServer minecraftServer = MinecraftServer.init();
         MinecraftServer.getConnectionManager().setPlayerProvider(CPlayer::new);
         MojangAuth.init();
@@ -78,6 +76,46 @@ public class Main {
             }
         });
 
+        setupEventListeners();
+
+        if (SAVE_WORLD) {
+
+            executorService.scheduleAtFixedRate(() -> {
+                for (Instance inst : instanceManager.getInstances()) {
+                    inst.saveChunksToStorage();
+                }
+            }, 120, 120, TimeUnit.SECONDS);
+        }
+
+        instanceManager.getInstances().forEach(instance -> {
+            if (instance instanceof @NotNull InstanceContainer container) {
+                container.setChunkLoader(new CIChunkLoader());
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (Instance inst : instanceManager.getInstances()) {
+                inst.saveChunksToStorage();
+            }
+            executorService.shutdown();
+        }));
+
+        executorService.scheduleAtFixedRate(EntityDamaging::clearLastDamaged, 10L, 10L, TimeUnit.SECONDS);
+
+        minecraftServer.start("127.0.0.1", 25565);
+    }
+
+    public static Main getInstance() {
+        return instance;
+    }
+
+    public static void main(String[] args) {
+        new Main();
+    }
+
+    private void setupEventListeners() {
+        GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
+
         EventNode<InstanceEvent> lobbyEventNode = lobby.eventNode();
 
         EventNode<InstanceEvent> control = EventNode.type("control", EventFilter.INSTANCE);
@@ -97,29 +135,13 @@ public class Main {
         lobbyEventNode.addChild(customItems);
 
         globalEventHandler.addListener(EntityDeathEvent.class, EntityDeathHandler::death);
+    }
 
-        executorService.scheduleAtFixedRate(() -> {
-            if (!SAVE_WORLD) return;
-            for (Instance inst : instanceManager.getInstances()) {
-                inst.saveChunksToStorage();
-            }
-        }, 120, 120, TimeUnit.SECONDS);
+    public Instance getLobby() {
+        return lobby;
+    }
 
-        instanceManager.getInstances().forEach(instance -> {
-            if (instance instanceof @NotNull InstanceContainer container) {
-                container.setChunkLoader(new CIChunkLoader());
-            }
-        });
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            for (Instance inst : instanceManager.getInstances()) {
-                inst.saveChunksToStorage();
-            }
-            executorService.shutdown();
-        }));
-
-        executorService.scheduleAtFixedRate(EntityDamaging::clearLastDamaged, 10L, 10L, TimeUnit.SECONDS);
-
-        minecraftServer.start("127.0.0.1", 25565);
+    public ScheduledExecutorService getExecutorService() {
+        return executorService;
     }
 }

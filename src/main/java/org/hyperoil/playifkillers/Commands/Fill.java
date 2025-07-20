@@ -11,9 +11,12 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
+import org.hyperoil.playifkillers.Permissions.Group;
 import org.hyperoil.playifkillers.Permissions.User;
 import org.hyperoil.playifkillers.Utils.Box;
 import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
+import org.hyperoil.playifkillers.Utils.Enums.Permission;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,9 +34,8 @@ public class Fill implements ICommand {
     @Override
     public int execute(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSource();
-        if (sender instanceof Player p) {
-            User user = new User(p.getUuid());
-            if (!user.hasPermission("hyperoil.fill")) {
+        if (sender instanceof CPlayer p) {
+            if (!p.hasPermission(Permission.FILL_COMMAND)) {
                 p.sendMessage(ChatColor.RED + "You are not permitted to do that.");
                 return 1;
             }

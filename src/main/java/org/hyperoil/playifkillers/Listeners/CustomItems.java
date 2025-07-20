@@ -7,6 +7,7 @@ import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.item.ItemStack;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.Item;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ public class CustomItems {
     public static void punch(@NotNull EntityAttackEvent event) {
         Entity entity = event.getEntity();
         // only thing with a inventory ATM later we would check if it's a player or something that extends InventoryHolder which we will make...
-        if (entity instanceof Player p) {
+        if (entity instanceof CPlayer p) {
            Item item = customItems.get(p.getItemInMainHand());
            if (item == null) return;
            item.punch(event);

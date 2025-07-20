@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.entity.Player;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,7 @@ public class Spawn implements ICommand {
     public int execute(CommandContext<CommandSender> context) {
         Integer entityCount = context.getArgument("amount", Integer.class);
         CommandSender sender = context.getSource();
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof CPlayer)) {
             sender.sendMessage("Only players may execute this command.");
             return 1;
         }
