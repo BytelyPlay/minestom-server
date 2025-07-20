@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Permissions.User;
@@ -20,10 +21,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 public class Fill implements ICommand {
-    private final InstanceContainer container;
+    private final Instance container;
     private final ExecutorService service;
 
-    public Fill(InstanceContainer contain, ExecutorService executorService) {
+    public Fill(Instance contain, ExecutorService executorService) {
         container = contain;
         service = executorService;
     }

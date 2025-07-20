@@ -6,12 +6,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minestom.server.command.CommandSender;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import org.hyperoil.playifkillers.Utils.ICommand;
 import org.jetbrains.annotations.Nullable;
-
-import static org.hyperoil.playifkillers.Main.overWorld;
 
 public class Spawn implements ICommand {
     @Override
@@ -25,14 +22,14 @@ public class Spawn implements ICommand {
         Player p = (Player) sender;
         String entityName = context.getArgument("entity", String.class);
 
-        if (entityName.equals("hyperoil:zombie")) {
+        /* if (entityName.equals("hyperoil:zombie")) {
             for (int i = 0; i < entityCount; i++) {
                 LivingEntity zombie = new Zombie();
-                zombie.setInstance(overWorld, p.getPosition());
+                zombie.setInstance(lobby, p.getPosition());
             }
         } else {
             p.sendMessage("Please supply a VALID entity type...");
-        }
+        } */
         return 1;
     }
     @Override

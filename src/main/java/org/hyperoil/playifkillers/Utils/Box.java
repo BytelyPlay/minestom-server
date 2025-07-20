@@ -1,6 +1,7 @@
 package org.hyperoil.playifkillers.Utils;
 
 import net.minestom.server.coordinate.BlockVec;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Box {
         z2 = givenZ2;
     }
 
-    public List<BlockVec> getAllBlocks(InstanceContainer container) {
+    public List<BlockVec> getAllBlocks(Instance container) {
         ArrayList<BlockVec> blocks = new ArrayList<>();
         for (int x = x1; x < x2; x++) {
             for (int y = y1; y < y2; y++) {

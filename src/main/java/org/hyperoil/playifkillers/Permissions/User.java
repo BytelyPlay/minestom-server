@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public class User implements PermissionHolder {
     private static HashMap<UUID, User> userHashMap = new HashMap<>();
-    private final UUID uuid;
+    private final UUID player;
 
     public static User getUser(UUID uuid) {
         return userHashMap.computeIfAbsent(uuid, User::new);
     }
     public User(UUID uuid) {
-        this.uuid = uuid;
+        this.player = uuid;
     }
     @Override
     public boolean hasPermission(String perm) {

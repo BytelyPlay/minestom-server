@@ -8,7 +8,6 @@ import net.minestom.server.event.entity.EntityAttackEvent;
 import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Utils.ActionAllowed;
 import org.hyperoil.playifkillers.Utils.Enums.Action;
-import org.hyperoil.playifkillers.Utils.Enums.RuleValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -22,15 +21,15 @@ public class EntityDamaging {
         if (target instanceof LivingEntity living) {
             if (entity instanceof Player playerAttacker) {
                 if (target instanceof Player) {
-                    if (!ActionAllowed.getShouldAllow(playerAttacker, Action.PVP)) return;
+                    if (ActionAllowed.getShouldDeny(playerAttacker, Action.PVP)) return;
                 } else {
-                    if (!ActionAllowed.getShouldAllow(playerAttacker, Action.PVE)) return;
+                    if (ActionAllowed.getShouldDeny(playerAttacker, Action.PVE)) return;
                 }
             }
             long lastDamage = lastDamaged.getOrDefault(living.getUuid(), 0L);
-            if (Main.overWorld.getTime() - lastDamage < 10) return;
+            if (Main.lobby.getTime() - lastDamage < 10) return;
 
-            lastDamaged.put(living.getUuid(), Main.overWorld.getTime());
+            lastDamaged.put(living.getUuid(), Main.lobby.getTime());
             living.damage(Damage.fromEntity(entity, 1f));
         }
     }
