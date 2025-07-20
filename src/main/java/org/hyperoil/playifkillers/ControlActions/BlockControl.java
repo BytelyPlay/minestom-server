@@ -8,13 +8,9 @@ import org.hyperoil.playifkillers.Utils.Enums.RuleValue;
 
 public class BlockControl {
     public static void onPlayerBlockBreakEvent(PlayerBlockBreakEvent event) {
-        if (!(ActionAllowed.getRule(event.getPlayer(), Action.blockBreak) == RuleValue.ALLOW)) {
-            event.setCancelled(true);
-        }
+        event.setCancelled(!ActionAllowed.getShouldAllow(event.getPlayer(), Action.BLOCK_BREAK));
     }
     public static void onPlayerBlockPlaceEvent(PlayerBlockPlaceEvent event) {
-        if (!(ActionAllowed.getRule(event.getPlayer(), Action.blockPlace) == RuleValue.ALLOW)) {
-            event.setCancelled(true);
-        }
+        event.setCancelled(!ActionAllowed.getShouldAllow(event.getPlayer(), Action.BLOCK_PLACE));
     }
 }

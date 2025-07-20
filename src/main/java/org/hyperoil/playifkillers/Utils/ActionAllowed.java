@@ -8,7 +8,7 @@ import org.hyperoil.playifkillers.Utils.Enums.RuleValue;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionAllowed {
-    // TODO: Fully implement
+    public static final RuleValue TREAT_UNSET_AS = RuleValue.DENY;
     private static ConcurrentHashMap<Action, RuleValue> ruleValueHashMap = new ConcurrentHashMap<>();
     public static RuleValue getRule(Player p, Action action) {
         User user = User.getUser(p.getUuid());
@@ -21,5 +21,27 @@ public class ActionAllowed {
 
     private static RuleValue getDefaultRuleValue(Action action) {
         return ruleValueHashMap.computeIfAbsent(action, act -> RuleValue.UNSET);
+    }
+
+    public static boolean getShouldAllow(Player p, Action action) {
+        RuleValue rule = getRule(p, action);
+        if (rule == RuleValue.UNSET) {
+            if (TREAT_UNSET_AS == RuleValue.UNSET) {
+                throw new IllegalArgumentException("TREAT_UNSET_AS Cannot be RuleValue.UNSET, acting as if it was RuleValue.DENY");
+            } else {
+                return TREAT_UNSET_AS == RuleValue.ALLOW;
+            }
+        }
+        return rule == RuleValue.ALLOW;
+    }
+    public static boolean getShouldAllow(RuleValue rule) {
+        if (rule == RuleValue.UNSET) {
+            if (TREAT_UNSET_AS == RuleValue.UNSET) {
+                throw new IllegalArgumentException("TREAT_UNSET_AS Cannot be RuleValue.UNSET, acting as if it was RuleValue.DENY");
+            } else {
+                return TREAT_UNSET_AS == RuleValue.ALLOW;
+            }
+        }
+        return rule == RuleValue.ALLOW;
     }
 }
