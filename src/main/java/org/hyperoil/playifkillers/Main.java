@@ -63,7 +63,7 @@ public class Main {
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, JoinPlayerSetup::onAsyncPlayerConfigurationEvent);
         CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
         CommandRegistration.registerCommands(dispatcher);
-        CommandRegistration.register(new Fill(lobby, executorService));
+        CommandRegistration.register(new Fill(executorService));
         CommandRegistration.register(new Gmc());
         CommandRegistration.register(new Gms());
 

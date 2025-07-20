@@ -9,7 +9,8 @@ public enum Permission {
     BLOCK_PLACE_BYPASS(5),
     PVP_BYPASS(6),
     PVE_BYPASS(7),
-    ITEM_PICKUP_BYPASS(8);
+    ITEM_PICKUP_BYPASS(8),
+    SETBLOCK_COMMAND(9);
 
     private final int ID;
 

@@ -24,40 +24,41 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 public class Fill implements ICommand {
-    private final Instance container;
     private final ExecutorService service;
 
-    public Fill(Instance contain, ExecutorService executorService) {
-        container = contain;
+    public Fill(ExecutorService executorService) {
         service = executorService;
     }
     @Override
     public int execute(CommandContext<CommandSender> context) {
         CommandSender sender = context.getSource();
         if (sender instanceof CPlayer p) {
+            Instance inst = p.getInstance();
             if (!p.hasPermission(Permission.FILL_COMMAND)) {
                 p.sendMessage(ChatColor.RED + "You are not permitted to do that.");
                 return 1;
             }
-        }
-        Box box = new Box(
-                context.getArgument("x1", Integer.class),
-                context.getArgument("y1", Integer.class),
-                context.getArgument("z1", Integer.class),
-                context.getArgument("x2", Integer.class),
-                context.getArgument("y2", Integer.class),
-                context.getArgument("z2", Integer.class)
-        );
-        Block block = Block.fromKey(context.getArgument("block", String.class));
-        if (block == null) {
-            sender.sendMessage("Please provide a valid block.");
-            return 1;
-        }
-        CompletableFuture.runAsync(() -> {
-            for (BlockVec vec : box.getAllBlocks(container)) {
-                container.setBlock(vec, block);
+            Box box = new Box(
+                    context.getArgument("x1", Integer.class),
+                    context.getArgument("y1", Integer.class),
+                    context.getArgument("z1", Integer.class),
+                    context.getArgument("x2", Integer.class),
+                    context.getArgument("y2", Integer.class),
+                    context.getArgument("z2", Integer.class)
+            );
+            Block block = Block.fromKey(context.getArgument("block", String.class));
+            if (block == null) {
+                sender.sendMessage("Please provide a valid block.");
+                return 1;
             }
-        }, service).thenRun(() -> sender.sendMessage(ChatColor.GREEN + "Done..."));
+            CompletableFuture.runAsync(() -> {
+                for (BlockVec vec : box.getAllBlocks(inst)) {
+                    inst.setBlock(vec, block);
+                }
+            }, service).thenRun(() -> sender.sendMessage(ChatColor.GREEN + "Done..."));
+        } else {
+            sender.sendMessage(ChatColor.RED + "You have to be a player to do this...");
+        }
         return 1;
     }
 
