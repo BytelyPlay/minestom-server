@@ -52,7 +52,7 @@ public class Fill implements ICommand {
                 return 1;
             }
             CompletableFuture.runAsync(() -> {
-                for (BlockVec vec : box.getAllBlocks(inst)) {
+                for (BlockVec vec : box.getAllBlocks()) {
                     inst.setBlock(vec, block);
                 }
             }, service).thenRun(() -> sender.sendMessage(ChatColor.GREEN + "Done..."));

@@ -44,12 +44,12 @@ public class SetBlock implements ICommand {
 
     @Override
     public String getName() {
-        return "";
+        return "setblock";
     }
 
     @Override
     public @Nullable LiteralArgumentBuilder<CommandSender> changeArguments(LiteralArgumentBuilder<CommandSender> arguments) {
-        return LiteralArgumentBuilder.<CommandSender>literal("fill")
+        return LiteralArgumentBuilder.<CommandSender>literal("setblock")
                 .then(
                         RequiredArgumentBuilder.<CommandSender, Integer>argument("x", IntegerArgumentType.integer())
                                 .then(

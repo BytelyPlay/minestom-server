@@ -7,6 +7,7 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
@@ -22,13 +23,16 @@ import net.minestom.server.instance.InstanceManager;
 import org.hyperoil.playifkillers.Commands.Fill;
 import org.hyperoil.playifkillers.Commands.Gmc;
 import org.hyperoil.playifkillers.Commands.Gms;
+import org.hyperoil.playifkillers.Commands.SetBlock;
 import org.hyperoil.playifkillers.ControlActions.BlockControl;
 import org.hyperoil.playifkillers.ControlActions.EntityDamaging;
 import org.hyperoil.playifkillers.ControlActions.ItemEvents;
 import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
+import org.hyperoil.playifkillers.NPCs.RandomItemsLobbyNPC;
 import org.hyperoil.playifkillers.Utils.CommandRegistration;
+import org.hyperoil.playifkillers.WorldGeneration.Superflat;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +48,11 @@ public class Main {
     // half the available cores...
     private static Main instance;
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
-    public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0, 105, 0));
+    public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0.5, 14, 0.5));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Instance lobby;
     public static final boolean SAVE_WORLD = true;
+    private static final Pos RAND_ITEMS_NPC_POS = new Pos(-1.5, 9, 0.5, -90, 0);
     private Main() {
         instance = this;
 
@@ -58,14 +63,18 @@ public class Main {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         lobby = instanceManager.createInstanceContainer();
 
+        setupLobby();
+
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, JoinPlayerSetup::onAsyncPlayerConfigurationEvent);
+
         CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
         CommandRegistration.registerCommands(dispatcher);
         CommandRegistration.register(new Fill(executorService));
         CommandRegistration.register(new Gmc());
         CommandRegistration.register(new Gms());
+        CommandRegistration.register(new SetBlock());
 
         globalEventHandler.addListener(PlayerCommandEvent.class, e -> {
             Player p = e.getPlayer();
@@ -135,6 +144,11 @@ public class Main {
         lobbyEventNode.addChild(customItems);
 
         globalEventHandler.addListener(EntityDeathEvent.class, EntityDeathHandler::death);
+    }
+
+    private void setupLobby() {
+        // lobby.setGenerator(new Superflat());
+        new RandomItemsLobbyNPC().setInstance(lobby, RAND_ITEMS_NPC_POS);
     }
 
     public Instance getLobby() {

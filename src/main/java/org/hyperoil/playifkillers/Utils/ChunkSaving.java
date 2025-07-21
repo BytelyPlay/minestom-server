@@ -33,8 +33,11 @@ public class ChunkSaving {
                 break;
             }
         }
-        if (chunkFullyAir) return;
         try {
+            if (chunkFullyAir) {
+                if (Files.exists(regionFile)) Files.delete(regionFile);
+                return;
+            }
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (!Files.exists(regionFile)) Files.createFile(regionFile);
             try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
