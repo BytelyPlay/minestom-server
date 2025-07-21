@@ -2,6 +2,8 @@ package org.hyperoil.playifkillers.NPCs;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
@@ -38,7 +40,7 @@ public abstract class NPC extends Entity {
         }
         PlayerInfoUpdatePacket.Entry entry = new PlayerInfoUpdatePacket.Entry(this.getUuid(), this.username,
                 properties, false, -1,
-                GameMode.CREATIVE, null, null, 0);
+                GameMode.SURVIVAL, null, null, 0);
 
         p.sendUninterceptedPacket(new PlayerInfoUpdatePacket(PlayerInfoUpdatePacket.Action.ADD_PLAYER, entry));
 
@@ -53,4 +55,7 @@ public abstract class NPC extends Entity {
 
         p.sendUninterceptedPacket(new PlayerInfoRemovePacket(this.getUuid()));
     }
+
+    public abstract void playerAttack(EntityAttackEvent event);
+    public abstract void playerInteract(PlayerEntityInteractEvent event);
 }

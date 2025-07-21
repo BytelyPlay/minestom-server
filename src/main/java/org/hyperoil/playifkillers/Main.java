@@ -7,7 +7,6 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
@@ -32,7 +31,6 @@ import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.NPCs.RandomItemsLobbyNPC;
 import org.hyperoil.playifkillers.Utils.CommandRegistration;
-import org.hyperoil.playifkillers.WorldGeneration.Superflat;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main {
     // concurrency is the goal... (don't overdo it that is just bad)
@@ -51,6 +50,7 @@ public class Main {
     public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0.5, 14, 0.5));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Instance lobby;
+    private final Instance randomItems;
     public static final boolean SAVE_WORLD = true;
     private static final Pos RAND_ITEMS_NPC_POS = new Pos(-1.5, 9, 0.5, -90, 0);
     private Main() {
@@ -62,6 +62,7 @@ public class Main {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         lobby = instanceManager.createInstanceContainer();
+        randomItems = instanceManager.createInstanceContainer();
 
         setupLobby();
 
@@ -143,12 +144,21 @@ public class Main {
         lobbyEventNode.addChild(control);
         lobbyEventNode.addChild(customItems);
 
+        lobbyEventNode.addListener(PlayerEntityInteractEvent.class, InteractNPC::playerEntityInteract);
+        lobbyEventNode.addListener(EntityAttackEvent.class, InteractNPC::entityAttack);
+
         globalEventHandler.addListener(EntityDeathEvent.class, EntityDeathHandler::death);
     }
 
     private void setupLobby() {
-        // lobby.setGenerator(new Superflat());
-        new RandomItemsLobbyNPC().setInstance(lobby, RAND_ITEMS_NPC_POS);
+        AtomicBoolean spawnedNPCs = new AtomicBoolean(false);
+
+        lobby.eventNode().addListener(PlayerSpawnEvent.class, event -> {
+            if (!spawnedNPCs.get()) {
+                new RandomItemsLobbyNPC().setInstance(lobby, RAND_ITEMS_NPC_POS);
+                spawnedNPCs.set(true);
+            }
+        });
     }
 
     public Instance getLobby() {

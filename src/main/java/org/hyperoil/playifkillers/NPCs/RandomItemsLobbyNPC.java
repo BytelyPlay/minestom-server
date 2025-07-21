@@ -5,14 +5,18 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.registry.RegistryData;
 import net.minestom.server.utils.mojang.MojangUtils;
+import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -42,5 +46,18 @@ public class RandomItemsLobbyNPC extends NPC {
 
     public RandomItemsLobbyNPC() {
         super(ChatColor.GREEN + "Random Items", skin);
+    }
+
+    @Override
+    public void playerAttack(EntityAttackEvent event) {
+        Entity attacker = event.getEntity();
+
+        if (attacker instanceof CPlayer p) {
+        }
+    }
+
+    @Override
+    public void playerInteract(PlayerEntityInteractEvent event) {
+        CPlayer p = CPlayer.getCPlayer(event.getPlayer());
     }
 }
