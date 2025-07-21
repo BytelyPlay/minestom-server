@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class RandomItemsLobbyNPC extends NPC {
-    // TODO: replace with something more competent...
     private static final PlayerSkin skin;
     private static final Logger log = LoggerFactory.getLogger(RandomItemsLobbyNPC.class);
 
