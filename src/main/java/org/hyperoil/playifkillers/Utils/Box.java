@@ -32,13 +32,18 @@ public class Box {
 
     public List<BlockVec> getAllBlocks() {
         ArrayList<BlockVec> blocks = new ArrayList<>();
-        for (int x = x1; x < x2; x++) {
-            for (int y = y1; y < y2; y++) {
-                for (int z = z1; z < z2; z++) {
+        for (int x = x1; x <= x2; x++) {
+            for (int y = y1; y <= y2; y++) {
+                for (int z = z1; z <= z2; z++) {
                     blocks.add(new BlockVec(x, y, z));
                 }
             }
         }
         return List.copyOf(blocks);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s %s - %s %s %s", x1, y1, z1, x2, y2, z2);
     }
 }

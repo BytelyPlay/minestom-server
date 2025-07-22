@@ -11,14 +11,19 @@ import org.hyperoil.playifkillers.Utils.ActionAllowed;
 import org.hyperoil.playifkillers.Utils.Enums.Action;
 
 public class ItemEvents {
-    public static void onPickUpItemEvent(PickupItemEvent event) {
+    private final ActionAllowed rules;
+    public void onPickUpItemEvent(PickupItemEvent event) {
         LivingEntity livingEntity = event.getLivingEntity();
         if (livingEntity instanceof CPlayer p) {
-            if (ActionAllowed.getShouldDeny(p, Action.ITEM_PICKUP)) return;
+            if (rules.getShouldDeny(p, Action.ITEM_PICKUP)) return;
             PlayerInventory playerInventory = p.getInventory();
             ItemEntity itemEntity = event.getItemEntity();
             ItemStack itemStack = itemEntity.getItemStack();
             playerInventory.addItemStack(itemStack);
         }
+    }
+
+    public ItemEvents(ActionAllowed rule) {
+        rules = rule;
     }
 }

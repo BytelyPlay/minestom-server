@@ -11,8 +11,6 @@ public class User extends PermissionHolder {
 
     public User(UUID uuid) {
         this.player = uuid;
-        // TODO: Make this a database retrieval thing... or better yet make a different class retrieve the thing and this class just being bombarded with addPermission and addGroup calls...
-        if (player.toString().equals("bcbaabb3-f21a-4927-94ad-2979c54f67fc")) this.addGroup(Group.ADMIN);
     }
 
     @Override

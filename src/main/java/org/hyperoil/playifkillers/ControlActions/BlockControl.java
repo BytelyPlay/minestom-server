@@ -7,12 +7,17 @@ import org.hyperoil.playifkillers.Utils.ActionAllowed;
 import org.hyperoil.playifkillers.Utils.Enums.Action;
 
 public class BlockControl {
-    public static void onPlayerBlockBreakEvent(PlayerBlockBreakEvent event) {
+    private final ActionAllowed rules;
+    public void onPlayerBlockBreakEvent(PlayerBlockBreakEvent event) {
         CPlayer p = CPlayer.getCPlayer(event.getPlayer());
-        event.setCancelled(ActionAllowed.getShouldDeny(p, Action.BLOCK_BREAK));
+        if (rules.getShouldDeny(p, Action.BLOCK_BREAK)) event.setCancelled(true);
     }
-    public static void onPlayerBlockPlaceEvent(PlayerBlockPlaceEvent event) {
+    public void onPlayerBlockPlaceEvent(PlayerBlockPlaceEvent event) {
         CPlayer p = CPlayer.getCPlayer(event.getPlayer());
-        event.setCancelled(ActionAllowed.getShouldDeny(p, Action.BLOCK_PLACE));
+        if (rules.getShouldDeny(p, Action.BLOCK_PLACE)) event.setCancelled(true);
+    }
+
+    public BlockControl(ActionAllowed rule) {
+        rules = rule;
     }
 }
