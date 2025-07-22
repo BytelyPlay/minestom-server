@@ -26,66 +26,70 @@ public class ChunkSaving {
     private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
 
     public static void saveChunk(Chunk chunk) {
-        Main.getInstance().getExecutorService().submit(() -> {
-            String saveFile = getSaveFileForChunk(chunk);
-            Path regionFile = Paths.get(saveFile);
-            boolean chunkFullyAir = true;
-            for (Section section : chunk.getSections()) {
-                if (section.blockPalette().count() != 0) {
-                    chunkFullyAir = false;
-                    break;
-                }
+        String saveFile = getSaveFileForChunk(chunk);
+        Path regionFile = Paths.get(saveFile);
+        System.out.println(regionFile.toAbsolutePath());
+        boolean chunkFullyAir = true;
+        for (Section section : chunk.getSections()) {
+            if (section.blockPalette().count() != 0) {
+                chunkFullyAir = false;
+                break;
             }
-            try {
-                if (chunkFullyAir) {
-                    if (Files.exists(regionFile)) Files.delete(regionFile);
-                    return;
-                }
-                if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
-                if (!Files.exists(regionFile)) Files.createFile(regionFile);
-                try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
-                    // Header to make sure it's actually a region file and some data:
-                    // START HEADER
+        }
+        try {
+            if (chunkFullyAir) {
+                if (Files.exists(regionFile)) Files.delete(regionFile);
+                return;
+            }
+            if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
+            if (!Files.exists(regionFile)) Files.createFile(regionFile);
+            log.info("1");
+            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(regionFile.toAbsolutePath().toString())))) {
+                log.info("2");
+                // Header to make sure it's actually a region file and some data:
+                // START HEADER
 
-                    // START IDENTIFIER
-                    outputStream.write(IDENTIFIER_BYTES);
-                    // END IDENTIFIER
+                // START IDENTIFIER
+                outputStream.write(IDENTIFIER_BYTES);
+                // END IDENTIFIER
 
-                    // START VERSION
-                    outputStream.write(REGION_VERSION);
-                    // END VERSION
+                // START VERSION
+                outputStream.write(REGION_VERSION);
+                // END VERSION
 
-                    // END HEADER
+                // END HEADER
 
-                    // Writing the actual data
-                    // START WRITING DATA
-                    for (int x = 0; x < 16; x++) {
-                        for (int y = 0; y < 16; y++) {
-                            for (int z = 0; z < 16; z++) {
-                                Block b = chunk.getBlock(x, y, z);
-                                if (b.isAir()) {
-                                    outputStream.write(0xF5);
-                                    continue;
-                                }
-                                if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
-
-                                outputStream.writeInt(x);
-                                outputStream.writeInt(y);
-                                outputStream.writeInt(z);
-
-                                outputStream.writeShort(b.id());
+                // Writing the actual data
+                // START WRITING DATA
+                log.info("3");
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 16; y++) {
+                        for (int z = 0; z < 16; z++) {
+                            Block b = chunk.getBlock(x, y, z);
+                            if (b.isAir()) {
+                                outputStream.write(0xF5);
+                                continue;
                             }
+                            if (b.hasNbt())
+                                ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+
+                            outputStream.writeInt(x);
+                            outputStream.writeInt(y);
+                            outputStream.writeInt(z);
+
+                            outputStream.writeShort(b.id());
                         }
                     }
-                    // END WRITING DATA
                 }
-            } catch (FileNotFoundException e) {
-                System.out.println("FileNotFoundException caught although checked for file stacktrace:");
-                log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
-            } catch (IOException e) {
-                log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+                log.info("4");
+                // END WRITING DATA
             }
-        });
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFoundException caught although checked for file stacktrace:");
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+        } catch (IOException e) {
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+        }
     }
 
     private static String getSaveFileForChunk(Chunk chunk) {
@@ -105,7 +109,8 @@ public class ChunkSaving {
     public static @Nullable HashMap<BlockVec, Block> loadChunk(Instance instance, int chunkX, int chunkZ) {
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
         Path savePath = Paths.get(getSaveFile(instance, chunkX, chunkZ));
-        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
+        System.out.println(savePath.toAbsolutePath());
+        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toAbsolutePath().toString())))) {
             if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
                 if (inputStream.read() == REGION_VERSION) {
                     for (int x = 0; x < 16; x++) {
@@ -125,7 +130,8 @@ public class ChunkSaving {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+            log.error("{}\n", e.getMessage());
+            Arrays.stream(e.getStackTrace()).forEach(trace -> log.error("{}", trace));
         }
         return blocksSaved;
     }
