@@ -67,7 +67,7 @@ public class Main {
     private final Instance lobby;
     private final Instance randomItems;
 
-    public static final boolean SAVE_WORLD = true;
+    public static final boolean SAVE_WORLD = false;
     private Main() {
         instance = this;
 
