@@ -34,7 +34,7 @@ public class CommandRegistration {
             registerCommand(cmd);
         }
 
-        MinecraftServer.getPacketListenerManager().setPlayListener(ClientTabCompletePacket.class, ((packet, player) -> {
+        /* MinecraftServer.getPacketListenerManager().setPlayListener(ClientTabCompletePacket.class, ((packet, player) -> {
             CPlayer cp = CPlayer.getCPlayer(player);
 
             ParseResults<CommandSender> parseResults = dispatcher.parse(packet.text(), cp);
@@ -57,7 +57,7 @@ public class CommandRegistration {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }));
+        })); */
 
     }
     private static void registerCommand(ICommand cmd) {

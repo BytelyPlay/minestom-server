@@ -20,10 +20,14 @@ import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.listener.TabCompleteListener;
 import net.minestom.server.network.packet.client.play.ClientTabCompletePacket;
 import net.minestom.server.network.packet.server.play.TabCompletePacket;
 import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.thread.TickSchedulerThread;
+import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.world.DimensionType;
 import org.hyperoil.playifkillers.Commands.*;
 import org.hyperoil.playifkillers.ControlActions.BlockControl;
@@ -43,10 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main {
@@ -183,6 +184,16 @@ public class Main {
 
         randomItemsEventNode.addChild(SetupControl.setupControlEvents(new ActionAllowed(RuleValue.DENY, rules),
                 randomItems.getUuid() + ".control"));
+        MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+            for (Player player : MinecraftServer.getConnectionManager().getOnlinePlayers()) {
+                if (player.getInstance() == randomItems) {
+                    Material[] materials = Material.values().toArray(Material[]::new);
+                    int randomIndex = ThreadLocalRandom.current().nextInt(0, materials.length - 1);
+                    ItemStack item = ItemStack.of(materials[randomIndex]);
+                    player.getInventory().addItemStack(item);
+                }
+            }
+        }, TaskSchedule.tick(20), TaskSchedule.tick(20));
     }
 
     public Instance getLobby() {
