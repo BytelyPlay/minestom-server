@@ -2,8 +2,10 @@ package org.hyperoil.playifkillers.Utils;
 
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Section;
 import net.minestom.server.instance.block.Block;
+import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,76 +26,85 @@ public class ChunkSaving {
     private static final Logger log = LoggerFactory.getLogger(ChunkSaving.class);
 
     public static void saveChunk(Chunk chunk) {
-        String saveFile = getSaveFileForChunk(chunk);
-        Path regionFile = Paths.get(saveFile);
-        boolean chunkFullyAir = true;
-        for (Section section : chunk.getSections()) {
-            if (section.blockPalette().count() != 0) {
-                chunkFullyAir = false;
-                break;
+        Main.getInstance().getExecutorService().submit(() -> {
+            String saveFile = getSaveFileForChunk(chunk);
+            Path regionFile = Paths.get(saveFile);
+            boolean chunkFullyAir = true;
+            for (Section section : chunk.getSections()) {
+                if (section.blockPalette().count() != 0) {
+                    chunkFullyAir = false;
+                    break;
+                }
             }
-        }
-        try {
-            if (chunkFullyAir) {
-                if (Files.exists(regionFile)) Files.delete(regionFile);
-                return;
-            }
-            if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
-            if (!Files.exists(regionFile)) Files.createFile(regionFile);
-            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
-                // Header to make sure it's actually a region file and some data:
-                // START HEADER
+            try {
+                if (chunkFullyAir) {
+                    if (Files.exists(regionFile)) Files.delete(regionFile);
+                    return;
+                }
+                if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
+                if (!Files.exists(regionFile)) Files.createFile(regionFile);
+                try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
+                    // Header to make sure it's actually a region file and some data:
+                    // START HEADER
 
-                // START IDENTIFIER
-                outputStream.write(IDENTIFIER_BYTES);
-                // END IDENTIFIER
+                    // START IDENTIFIER
+                    outputStream.write(IDENTIFIER_BYTES);
+                    // END IDENTIFIER
 
-                // START VERSION
-                outputStream.write(REGION_VERSION);
-                // END VERSION
+                    // START VERSION
+                    outputStream.write(REGION_VERSION);
+                    // END VERSION
 
-                // END HEADER
+                    // END HEADER
 
-                // Writing the actual data
-                // START WRITING DATA
-                for (int x = 0; x < 16; x++) {
-                    for (int y = 0; y < 16; y++) {
-                        for (int z = 0; z < 16; z++) {
-                            Block b = chunk.getBlock(x, y, z);
-                            if (b.isAir()) {
-                                outputStream.write(0xF5);
-                                continue;
+                    // Writing the actual data
+                    // START WRITING DATA
+                    for (int x = 0; x < 16; x++) {
+                        for (int y = 0; y < 16; y++) {
+                            for (int z = 0; z < 16; z++) {
+                                Block b = chunk.getBlock(x, y, z);
+                                if (b.isAir()) {
+                                    outputStream.write(0xF5);
+                                    continue;
+                                }
+                                if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+
+                                outputStream.writeInt(x);
+                                outputStream.writeInt(y);
+                                outputStream.writeInt(z);
+
+                                outputStream.writeShort(b.id());
                             }
-                            if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
-
-                            outputStream.writeInt(x);
-                            outputStream.writeInt(y);
-                            outputStream.writeInt(z);
-
-                            outputStream.writeShort(b.id());
                         }
                     }
+                    // END WRITING DATA
                 }
-                // END WRITING DATA
+            } catch (FileNotFoundException e) {
+                System.out.println("FileNotFoundException caught although checked for file stacktrace:");
+                log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+            } catch (IOException e) {
+                log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException caught although checked for file stacktrace:");
-            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
-        } catch (IOException e) {
-            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
-        }
+        });
     }
 
     private static String getSaveFileForChunk(Chunk chunk) {
-        return getSaveFile(chunk.getChunkX(), chunk.getChunkZ());
+        return getSaveFile(chunk);
     }
-    private static String getSaveFile(int chunkX, int chunkZ) {
-        // replace overworld with some instance name.
-        return "./save/" + "overworld" + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
+    private static String getSaveFile(Chunk chunk) {
+        int chunkX = chunk.getChunkX();
+        int chunkZ = chunk.getChunkZ();
+
+        return "./save/" + chunk.getInstance().getUuid() + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
     }
-    public static @Nullable HashMap<BlockVec, Block> loadChunk(int chunkX, int chunkZ) {
+
+    private static String getSaveFile(Instance inst, int chunkX, int chunkZ) {
+        return "./save/" + inst.getUuid() + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
+    }
+
+    public static @Nullable HashMap<BlockVec, Block> loadChunk(Instance instance, int chunkX, int chunkZ) {
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
-        Path savePath = Paths.get(getSaveFile(chunkX, chunkZ));
+        Path savePath = Paths.get(getSaveFile(instance, chunkX, chunkZ));
         try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
             if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
                 if (inputStream.read() == REGION_VERSION) {

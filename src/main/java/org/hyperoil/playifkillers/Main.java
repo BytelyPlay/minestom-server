@@ -2,6 +2,7 @@ package org.hyperoil.playifkillers;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
@@ -19,6 +20,8 @@ import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.world.DimensionType;
 import org.hyperoil.playifkillers.Commands.Fill;
 import org.hyperoil.playifkillers.Commands.Gmc;
 import org.hyperoil.playifkillers.Commands.Gms;
@@ -35,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +50,7 @@ public class Main {
 
     // half the available cores...
     private static Main instance;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
     public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0.5, 14, 0.5));
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Instance lobby;
@@ -61,10 +65,22 @@ public class Main {
         MojangAuth.init();
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
-        lobby = instanceManager.createInstanceContainer();
-        randomItems = instanceManager.createInstanceContainer();
+        RegistryKey<DimensionType> overworldDimensionType = MinecraftServer.getDimensionTypeRegistry().getKey(DimensionType.OVERWORLD.key());
+        if (overworldDimensionType == null) {
+            log.error("Cannot get overworld dimension type...");
+            lobby = null;
+            randomItems = null;
+            return;
+        }
+
+        lobby = new InstanceContainer(UUID.nameUUIDFromBytes("lobby".getBytes()), overworldDimensionType, new CIChunkLoader());
+        randomItems = new InstanceContainer(UUID.nameUUIDFromBytes("randomItems".getBytes()), overworldDimensionType, new CIChunkLoader());
+
+        instanceManager.registerInstance(lobby);
+        instanceManager.registerInstance(randomItems);
 
         setupLobby();
+        setupRandomItems();
 
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
 
@@ -96,12 +112,6 @@ public class Main {
                 }
             }, 120, 120, TimeUnit.SECONDS);
         }
-
-        instanceManager.getInstances().forEach(instance -> {
-            if (instance instanceof @NotNull InstanceContainer container) {
-                container.setChunkLoader(new CIChunkLoader());
-            }
-        });
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (Instance inst : instanceManager.getInstances()) {
@@ -161,11 +171,18 @@ public class Main {
         });
     }
 
+    private void setupRandomItems() {
+    }
+
     public Instance getLobby() {
         return lobby;
     }
 
     public ScheduledExecutorService getExecutorService() {
         return executorService;
+    }
+
+    public Instance getRandomItems() {
+        return randomItems;
     }
 }

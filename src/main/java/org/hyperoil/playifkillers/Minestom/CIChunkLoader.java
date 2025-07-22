@@ -15,7 +15,7 @@ public class CIChunkLoader implements IChunkLoader {
     @Override
     public @Nullable Chunk loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
         // TODO: Add NBT support.
-        HashMap<BlockVec, Block> blocksSaved = ChunkSaving.loadChunk(chunkX, chunkZ);
+        HashMap<BlockVec, Block> blocksSaved = ChunkSaving.loadChunk(instance, chunkX, chunkZ);
         if (blocksSaved == null) return null;
         Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
         for (BlockVec vec : blocksSaved.keySet()) {
