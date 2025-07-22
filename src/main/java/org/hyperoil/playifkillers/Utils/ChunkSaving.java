@@ -5,7 +5,6 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Section;
 import net.minestom.server.instance.block.Block;
-import org.hyperoil.playifkillers.Main;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ public class ChunkSaving {
     public static void saveChunk(Chunk chunk) {
         String saveFile = getSaveFileForChunk(chunk);
         Path regionFile = Paths.get(saveFile);
-        System.out.println(regionFile.toAbsolutePath());
         boolean chunkFullyAir = true;
         for (Section section : chunk.getSections()) {
             if (section.blockPalette().count() != 0) {
@@ -43,9 +41,7 @@ public class ChunkSaving {
             }
             if (!Files.exists(savesFolder)) Files.createDirectories(savesFolder);
             if (!Files.exists(regionFile)) Files.createFile(regionFile);
-            log.info("1");
-            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(regionFile.toAbsolutePath().toString())))) {
-                log.info("2");
+            try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)))) {
                 // Header to make sure it's actually a region file and some data:
                 // START HEADER
 
@@ -61,7 +57,6 @@ public class ChunkSaving {
 
                 // Writing the actual data
                 // START WRITING DATA
-                log.info("3");
                 for (int x = 0; x < 16; x++) {
                     for (int y = 0; y < 16; y++) {
                         for (int z = 0; z < 16; z++) {
@@ -70,8 +65,7 @@ public class ChunkSaving {
                                 outputStream.write(0xF5);
                                 continue;
                             }
-                            if (b.hasNbt())
-                                ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
+                            if (b.hasNbt()) ChunkSaving.log.warn("NBT Block detected while saving chunks but we do not support NBT (yet)...");
 
                             outputStream.writeInt(x);
                             outputStream.writeInt(y);
@@ -81,7 +75,6 @@ public class ChunkSaving {
                         }
                     }
                 }
-                log.info("4");
                 // END WRITING DATA
             }
         } catch (FileNotFoundException e) {
@@ -93,24 +86,16 @@ public class ChunkSaving {
     }
 
     private static String getSaveFileForChunk(Chunk chunk) {
-        return getSaveFile(chunk);
+        return getSaveFile(chunk.getInstance(), chunk.getChunkX(), chunk.getChunkZ());
     }
-    private static String getSaveFile(Chunk chunk) {
-        int chunkX = chunk.getChunkX();
-        int chunkZ = chunk.getChunkZ();
-
-        return getSaveFile(chunk.getInstance(), chunkX, chunkZ);
+    private static String getSaveFile(Instance instance, int chunkX, int chunkZ) {
+        // replace overworld with some instance name.
+        return "./save/" + instance.getUuid() + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
     }
-
-    private static String getSaveFile(Instance inst, int chunkX, int chunkZ) {
-        return "./save/" + inst.getUuid() + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
-    }
-
     public static @Nullable HashMap<BlockVec, Block> loadChunk(Instance instance, int chunkX, int chunkZ) {
         HashMap<BlockVec, Block> blocksSaved = new HashMap<>();
         Path savePath = Paths.get(getSaveFile(instance, chunkX, chunkZ));
-        System.out.println(savePath.toAbsolutePath());
-        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toAbsolutePath().toString())))) {
+        try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(savePath.toString())))) {
             if (Arrays.equals(inputStream.readNBytes(8), IDENTIFIER_BYTES)) {
                 if (inputStream.read() == REGION_VERSION) {
                     for (int x = 0; x < 16; x++) {
@@ -130,8 +115,7 @@ public class ChunkSaving {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            log.error("{}\n", e.getMessage());
-            Arrays.stream(e.getStackTrace()).forEach(trace -> log.error("{}", trace));
+            log.error("{}\n{}", e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
         return blocksSaved;
     }

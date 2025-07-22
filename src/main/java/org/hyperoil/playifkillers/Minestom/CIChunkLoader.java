@@ -18,7 +18,6 @@ public class CIChunkLoader implements IChunkLoader {
     public @Nullable Chunk loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
         // TODO: Add NBT support.
         HashMap<BlockVec, Block> blocksSaved = ChunkSaving.loadChunk(instance, chunkX, chunkZ);
-        System.out.println(blocksSaved);
         if (blocksSaved == null) return null;
         Chunk chunk = instance.getChunkSupplier().createChunk(instance, chunkX, chunkZ);
         for (BlockVec vec : blocksSaved.keySet()) {
@@ -29,7 +28,6 @@ public class CIChunkLoader implements IChunkLoader {
 
     @Override
     public void saveChunk(@NotNull Chunk chunk) {
-        CompletableFuture.runAsync(() -> ChunkSaving.saveChunk(chunk),
-                Main.getInstance().getExecutorService());
+        ChunkSaving.saveChunk(chunk);
     }
 }
