@@ -193,7 +193,7 @@ public class Main {
                     player.getInventory().addItemStack(item);
                 }
             }
-        }, TaskSchedule.tick(20), TaskSchedule.tick(20));
+        }, TaskSchedule.tick(200), TaskSchedule.tick(200));
     }
 
     public Instance getLobby() {
