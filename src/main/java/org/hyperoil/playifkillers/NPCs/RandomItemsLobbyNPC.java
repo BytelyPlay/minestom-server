@@ -16,6 +16,7 @@ import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
 import net.minestom.server.registry.RegistryData;
 import net.minestom.server.utils.mojang.MojangUtils;
+import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
 import org.jetbrains.annotations.NotNull;
@@ -53,11 +54,14 @@ public class RandomItemsLobbyNPC extends NPC {
         Entity attacker = event.getEntity();
 
         if (attacker instanceof CPlayer p) {
+            p.setInstance(Main.getInstance().getRandomItems(), Main.RANDOM_ITEMS_SPAWN_POINT);
         }
     }
 
     @Override
     public void playerInteract(PlayerEntityInteractEvent event) {
         CPlayer p = CPlayer.getCPlayer(event.getPlayer());
+
+        p.setInstance(Main.getInstance().getRandomItems(), Main.RANDOM_ITEMS_SPAWN_POINT);
     }
 }

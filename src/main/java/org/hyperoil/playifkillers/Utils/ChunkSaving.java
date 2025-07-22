@@ -95,7 +95,7 @@ public class ChunkSaving {
         int chunkX = chunk.getChunkX();
         int chunkZ = chunk.getChunkZ();
 
-        return "./save/" + chunk.getInstance().getUuid() + saveFileChunkCoordSeparator + chunkX + saveFileChunkCoordSeparator + chunkZ + ".r1";
+        return getSaveFile(chunk.getInstance(), chunkX, chunkZ);
     }
 
     private static String getSaveFile(Instance inst, int chunkX, int chunkZ) {

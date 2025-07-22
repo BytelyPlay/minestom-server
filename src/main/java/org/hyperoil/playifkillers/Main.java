@@ -51,12 +51,17 @@ public class Main {
     // half the available cores...
     private static Main instance;
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+
     public static final Pos LOBBY_SPAWN_POINT = new Pos(new Vec(0.5, 14, 0.5));
+    public static final Pos RANDOM_ITEMS_SPAWN_POINT = new Pos(0, 0, 0);
+    private static final Pos RAND_ITEMS_NPC_POS = new Pos(-1.5, 9, 0.5, -90, 0);
+
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+
     private final Instance lobby;
     private final Instance randomItems;
+
     public static final boolean SAVE_WORLD = true;
-    private static final Pos RAND_ITEMS_NPC_POS = new Pos(-1.5, 9, 0.5, -90, 0);
     private Main() {
         instance = this;
 
