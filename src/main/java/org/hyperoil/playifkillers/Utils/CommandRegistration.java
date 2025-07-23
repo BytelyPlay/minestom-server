@@ -1,22 +1,10 @@
 package org.hyperoil.playifkillers.Utils;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.StringRange;
-import com.mojang.brigadier.suggestion.Suggestion;
-import com.mojang.brigadier.suggestion.Suggestions;
-import net.kyori.adventure.text.Component;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
-import net.minestom.server.network.packet.client.play.ClientTabCompletePacket;
-import net.minestom.server.network.packet.server.play.DeclareCommandsPacket;
-import net.minestom.server.network.packet.server.play.TabCompletePacket;
-import org.hyperoil.playifkillers.Minestom.CPlayer;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class CommandRegistration {
     private static ArrayList<ICommand> queue = new ArrayList<>();

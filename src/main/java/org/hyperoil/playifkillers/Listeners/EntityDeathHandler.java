@@ -1,7 +1,6 @@
 package org.hyperoil.playifkillers.Listeners;
 
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityDeathEvent;
 import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Minestom.CPlayer;

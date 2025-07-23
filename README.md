@@ -4,4 +4,6 @@ My old server had a custom plugin but isn't really that custom... \
 This one is very custom...\
 This one also uses Bridagier since they made it a library and made it open sourced, it's also fitting as it is used for minecraft and this is also minecraft!
 
-Instructions to run: install java if you haven't already and open a command prompt in the same directory and type java -jar jardownloaded.jar
+Instructions to run: install java if you haven't already and open a command prompt in the same directory and type java -jar jardownloaded.jar \
+\
+Contributions such as pull requests or even just issues are greatly appreciated!

@@ -1,21 +1,14 @@
 package org.hyperoil.playifkillers.NPCs;
 
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
-import net.minestom.server.instance.Instance;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket;
 import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
-import net.minestom.server.network.player.PlayerConnection;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
 
 public abstract class NPC extends Entity {
     private final String username;

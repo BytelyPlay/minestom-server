@@ -1,12 +1,10 @@
 package org.hyperoil.playifkillers.WorldGeneration;
 
-import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.generator.GenerationUnit;
 import net.minestom.server.instance.generator.Generator;
 import net.minestom.server.instance.generator.UnitModifier;
-import org.hyperoil.playifkillers.Utils.Box;
 import org.jetbrains.annotations.NotNull;
 
 public class Superflat implements Generator {

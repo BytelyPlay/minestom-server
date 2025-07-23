@@ -2,7 +2,6 @@ package org.hyperoil.playifkillers.ControlActions;
 
 import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.inventory.PlayerInventory;
 import net.minestom.server.item.ItemStack;

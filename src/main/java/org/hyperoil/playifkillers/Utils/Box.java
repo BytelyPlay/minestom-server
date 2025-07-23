@@ -2,8 +2,6 @@ package org.hyperoil.playifkillers.Utils;
 
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
 
 import java.util.ArrayList;
 import java.util.List;

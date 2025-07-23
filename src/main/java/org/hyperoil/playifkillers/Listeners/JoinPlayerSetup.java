@@ -1,6 +1,5 @@
 package org.hyperoil.playifkillers.Listeners;
 
-import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.instance.Instance;
 import org.hyperoil.playifkillers.Main;

@@ -5,7 +5,8 @@ public enum Action {
     BLOCK_PLACE(2, "blockPlace", Permission.BLOCK_PLACE_BYPASS),
     PVP(3, "PVP", Permission.PVP_BYPASS),
     PVE(4, "PVE", Permission.PVE_BYPASS),
-    ITEM_PICKUP(5, "ItemPickup", Permission.ITEM_PICKUP_BYPASS);
+    ITEM_PICKUP(5, "itemPickup", Permission.ITEM_PICKUP_BYPASS),
+    USE_SPAWN_EGGS(6, "useSpawnEggs", Permission.SPAWN_EGG_BYPASS);
 
     private final int ID;
     private final String readableID;

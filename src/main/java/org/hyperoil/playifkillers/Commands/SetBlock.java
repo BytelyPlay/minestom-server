@@ -9,8 +9,6 @@ import net.minestom.server.command.CommandSender;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
-import org.hyperoil.playifkillers.Utils.Box;
-import org.hyperoil.playifkillers.Utils.CommandRegistration;
 import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
 import org.hyperoil.playifkillers.Utils.Enums.Permission;
 import org.hyperoil.playifkillers.Utils.ICommand;

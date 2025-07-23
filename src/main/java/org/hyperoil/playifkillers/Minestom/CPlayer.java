@@ -4,7 +4,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
-import org.hyperoil.playifkillers.Permissions.Group;
 import org.hyperoil.playifkillers.Permissions.User;
 import org.hyperoil.playifkillers.Utils.Enums.Permission;
 import org.jetbrains.annotations.NotNull;

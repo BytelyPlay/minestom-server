@@ -2,7 +2,6 @@ package org.hyperoil.playifkillers.ControlActions;
 
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.instance.Instance;

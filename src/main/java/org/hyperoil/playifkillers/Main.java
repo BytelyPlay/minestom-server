@@ -2,18 +2,15 @@ package org.hyperoil.playifkillers;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.kyori.adventure.key.Key;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.entity.EntityDeathEvent;
-import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.extras.MojangAuth;
@@ -22,17 +19,11 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.listener.TabCompleteListener;
-import net.minestom.server.network.packet.client.play.ClientTabCompletePacket;
-import net.minestom.server.network.packet.server.play.TabCompletePacket;
 import net.minestom.server.registry.RegistryKey;
-import net.minestom.server.thread.TickSchedulerThread;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.world.DimensionType;
 import org.hyperoil.playifkillers.Commands.*;
-import org.hyperoil.playifkillers.ControlActions.BlockControl;
-import org.hyperoil.playifkillers.ControlActions.EntityDamaging;
-import org.hyperoil.playifkillers.ControlActions.ItemEvents;
+import org.hyperoil.playifkillers.ControlActions.SpawnEggs;
 import org.hyperoil.playifkillers.Listeners.*;
 import org.hyperoil.playifkillers.Minestom.CIChunkLoader;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
@@ -42,7 +33,6 @@ import org.hyperoil.playifkillers.Utils.CommandRegistration;
 import org.hyperoil.playifkillers.Utils.Enums.Action;
 import org.hyperoil.playifkillers.Utils.Enums.RuleValue;
 import org.hyperoil.playifkillers.Utils.SetupControl;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,6 +171,8 @@ public class Main {
         ConcurrentHashMap<Action, RuleValue> rules = new ConcurrentHashMap<>();
         rules.put(Action.BLOCK_BREAK, RuleValue.ALLOW);
         rules.put(Action.BLOCK_PLACE, RuleValue.ALLOW);
+        rules.put(Action.ITEM_PICKUP, RuleValue.ALLOW);
+        rules.put(Action.USE_SPAWN_EGGS, RuleValue.ALLOW);
 
         randomItemsEventNode.addChild(SetupControl.setupControlEvents(new ActionAllowed(RuleValue.DENY, rules),
                 randomItems.getUuid() + ".control"));

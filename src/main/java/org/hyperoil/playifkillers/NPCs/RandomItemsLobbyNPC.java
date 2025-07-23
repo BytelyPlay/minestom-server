@@ -1,32 +1,15 @@
 package org.hyperoil.playifkillers.NPCs;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
-import net.minestom.server.instance.Instance;
-import net.minestom.server.network.packet.server.SendablePacket;
-import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket;
-import net.minestom.server.registry.RegistryData;
-import net.minestom.server.utils.mojang.MojangUtils;
 import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Minestom.CPlayer;
 import org.hyperoil.playifkillers.Utils.Enums.ChatColor;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class RandomItemsLobbyNPC extends NPC {
     private static final PlayerSkin skin;

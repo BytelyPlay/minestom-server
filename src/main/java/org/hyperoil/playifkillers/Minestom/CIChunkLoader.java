@@ -5,13 +5,11 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
-import org.hyperoil.playifkillers.Main;
 import org.hyperoil.playifkillers.Utils.ChunkSaving;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 
 public class CIChunkLoader implements IChunkLoader {
     @Override
