@@ -6,4 +6,7 @@ This one also uses Bridagier since they made it a library and made it open sourc
 
 Instructions to run: install java if you haven't already and open a command prompt in the same directory and type java -jar jardownloaded.jar \
 \
-Contributions such as pull requests or even just issues are greatly appreciated!
+Contributions such as pull requests or even just issues are greatly appreciated! \
+
+I am marking this project as inactive of 23/7/2025 \
+Anyone may feel free to fork this project, I put it under CC0.
